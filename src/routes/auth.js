@@ -6,66 +6,11 @@ const {
   requireGuest,
 } = require('../middlewares/auth');
 
+const {
+  getRuntimeConfig,
+} = require('../config/runtime-config');
+
 const router = express.Router();
-
-function obterHashAdministrador() {
-  const hashBase64 = String(
-    process.env.ADMIN_PASSWORD_HASH_B64 || ''
-  ).trim();
-
-  if (hashBase64) {
-    const base64Valido =
-      /^[A-Za-z0-9+/]+={0,2}$/.test(hashBase64) &&
-      hashBase64.length % 4 === 0;
-
-    if (!base64Valido) {
-      return {
-        hash: '',
-        origem: 'base64-invalido',
-      };
-    }
-
-    return {
-      hash: Buffer.from(hashBase64, 'base64')
-        .toString('utf8')
-        .trim(),
-      origem: 'base64',
-    };
-  }
-
-  const hashDiretoOriginal = String(
-    process.env.ADMIN_PASSWORD_HASH || ''
-  ).trim();
-
-  let hashDireto = hashDiretoOriginal;
-
-  const possuiAspasDuplas =
-    hashDireto.startsWith('"') &&
-    hashDireto.endsWith('"');
-
-  const possuiAspasSimples =
-    hashDireto.startsWith("'") &&
-    hashDireto.endsWith("'");
-
-  if (possuiAspasDuplas || possuiAspasSimples) {
-    hashDireto = hashDireto.slice(1, -1).trim();
-  }
-
-  const barrasAntesDoCifrao =
-    (hashDireto.match(/\\\$/g) || []).length;
-
-  hashDireto = hashDireto.replace(/\\\$/g, '$');
-
-  return {
-    hash: hashDireto,
-    origem:
-      hashDireto !== hashDiretoOriginal
-        ? 'direto-normalizado'
-        : 'direto',
-    tamanhoOriginal: hashDiretoOriginal.length,
-    barrasRemovidas: barrasAntesDoCifrao,
-  };
-}
 
 router.get('/login', requireGuest, (req, res) => {
   res.render('login', {
@@ -88,8 +33,8 @@ router.post('/login', requireGuest, async (req, res, next) => {
       .trim()
       .toLowerCase();
 
-    const resultadoHash = obterHashAdministrador();
-    const senhaHash = resultadoHash.hash;
+    const runtimeConfig = getRuntimeConfig();
+    const senhaHash = runtimeConfig.adminPasswordHash;
 
     const emailCorreto =
       Boolean(email) &&
@@ -106,7 +51,6 @@ router.post('/login', requireGuest, async (req, res, next) => {
     }
 
     if (!emailCorreto || !senhaCorreta) {
-
       return res.status(401).render('login', {
         titulo: 'Entrar',
         erro: 'E-mail ou senha inválidos.',

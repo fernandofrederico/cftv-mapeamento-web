@@ -1,27 +1,36 @@
 const MySQLStoreFactory = require('express-mysql-session');
 
+const {
+  getRuntimeConfig,
+} = require('./runtime-config');
+
 function createSessionStore(session) {
   const isProduction = process.env.NODE_ENV === 'production';
-
-  const databaseConfig = {
-    host: String(process.env.DB_HOST || '').trim(),
-    port: Number(process.env.DB_PORT) || 3306,
-    user: String(process.env.DB_USER || '').trim(),
-    password: String(process.env.DB_PASSWORD || ''),
-    database: String(process.env.DB_NAME || '').trim(),
-  };
+  const runtimeConfig = getRuntimeConfig();
+  const databaseConfig = runtimeConfig.database;
 
   const missingVariables = [];
 
-  if (!databaseConfig.host) missingVariables.push('DB_HOST');
-  if (!databaseConfig.user) missingVariables.push('DB_USER');
-  if (!databaseConfig.password) missingVariables.push('DB_PASSWORD');
-  if (!databaseConfig.database) missingVariables.push('DB_NAME');
+  if (!databaseConfig.host) {
+    missingVariables.push('DB_HOST');
+  }
+
+  if (!databaseConfig.user) {
+    missingVariables.push('DB_USER');
+  }
+
+  if (!databaseConfig.password) {
+    missingVariables.push('DB_PASSWORD');
+  }
+
+  if (!databaseConfig.database) {
+    missingVariables.push('DB_NAME');
+  }
 
   if (missingVariables.length > 0) {
     if (isProduction) {
       throw new Error(
-        `Variáveis obrigatórias ausentes: ${missingVariables.join(', ')}`
+        `Configurações obrigatórias ausentes: ${missingVariables.join(', ')}`
       );
     }
 
@@ -35,7 +44,11 @@ function createSessionStore(session) {
   const MySQLStore = MySQLStoreFactory(session);
 
   return new MySQLStore({
-    ...databaseConfig,
+    host: databaseConfig.host,
+    port: databaseConfig.port,
+    user: databaseConfig.user,
+    password: databaseConfig.password,
+    database: databaseConfig.database,
     createDatabaseTable: true,
     clearExpired: true,
     checkExpirationInterval: 15 * 60 * 1000,
