@@ -8,6 +8,39 @@ const {
 
 const router = express.Router();
 
+function obterHashAdministrador() {
+  const hashBase64 = String(
+    process.env.ADMIN_PASSWORD_HASH_B64 || ''
+  ).trim();
+
+  if (hashBase64) {
+    const base64Valido =
+      /^[A-Za-z0-9+/]+={0,2}$/.test(hashBase64) &&
+      hashBase64.length % 4 === 0;
+
+    if (!base64Valido) {
+      return {
+        hash: '',
+        origem: 'base64-invalido',
+      };
+    }
+
+    return {
+      hash: Buffer.from(hashBase64, 'base64')
+        .toString('utf8')
+        .trim(),
+      origem: 'base64',
+    };
+  }
+
+  return {
+    hash: String(
+      process.env.ADMIN_PASSWORD_HASH || ''
+    ).trim(),
+    origem: 'direto',
+  };
+}
+
 router.get('/login', requireGuest, (req, res) => {
   res.render('login', {
     titulo: 'Entrar',
@@ -29,9 +62,8 @@ router.post('/login', requireGuest, async (req, res, next) => {
       .trim()
       .toLowerCase();
 
-    const senhaHash = String(
-      process.env.ADMIN_PASSWORD_HASH || ''
-    ).trim();
+    const resultadoHash = obterHashAdministrador();
+    const senhaHash = resultadoHash.hash;
 
     const emailCorreto =
       Boolean(email) &&
@@ -52,6 +84,7 @@ router.post('/login', requireGuest, async (req, res, next) => {
         emailInformado: Boolean(email),
         emailConfigurado: Boolean(emailAdministrador),
         emailCorresponde: emailCorreto,
+        origemHash: resultadoHash.origem,
         hashPresente: Boolean(senhaHash),
         hashValido,
         tamanhoHash: senhaHash.length,
