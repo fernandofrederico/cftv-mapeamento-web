@@ -1,0 +1,272 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  color-scheme: dark;
+  --bg: #07111f;
+  --surface: #0f1d2d;
+  --surface-light: #16283c;
+  --border: #273b52;
+  --text: #f5f7fa;
+  --muted: #9fb0c3;
+  --primary: #f28c28;
+  --primary-light: #ffac5c;
+  --success: #36c692;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(242, 140, 40, 0.12),
+      transparent 28%
+    ),
+    var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.topbar {
+  min-height: 82px;
+  padding: 18px clamp(20px, 4vw, 52px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background: rgba(9, 21, 35, 0.96);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+}
+
+.topbar h1,
+.welcome h2,
+.modules h2,
+.module-card h3 {
+  margin: 0;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.user-area {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.user-area > div {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+}
+
+.user-area small {
+  color: var(--muted);
+}
+
+.logout-button {
+  min-height: 40px;
+  padding: 0 17px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  border-color: var(--primary);
+  color: var(--primary-light);
+}
+
+.dashboard {
+  width: min(1380px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 38px 0 60px;
+}
+
+.welcome {
+  min-height: 190px;
+  padding: clamp(28px, 5vw, 52px);
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      110deg,
+      rgba(15, 29, 45, 0.98),
+      rgba(22, 40, 60, 0.9)
+    );
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.24);
+}
+
+.welcome h2 {
+  max-width: 760px;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.welcome p:last-child {
+  max-width: 720px;
+  margin: 15px 0 0;
+  color: var(--muted);
+  font-size: 1.04rem;
+  line-height: 1.65;
+}
+
+.indicators {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.indicator-card {
+  min-height: 132px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+}
+
+.indicator-card span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.indicator-card strong {
+  color: var(--primary-light);
+  font-size: 2.15rem;
+}
+
+.modules {
+  margin-top: 38px;
+}
+
+.modules > h2 {
+  margin-bottom: 18px;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.module-card {
+  min-height: 150px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 18px;
+  align-items: start;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+
+.module-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(242, 140, 40, 0.72);
+}
+
+.module-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(242, 140, 40, 0.15);
+  color: var(--primary-light);
+  font-size: 1.7rem;
+}
+
+.module-card h3 {
+  margin-bottom: 8px;
+}
+
+.module-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.status {
+  padding: 6px 9px;
+  border: 1px solid rgba(54, 198, 146, 0.35);
+  border-radius: 999px;
+  color: var(--success);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 980px) {
+  .indicators {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .user-area {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .user-area > div {
+    text-align: left;
+  }
+
+  .dashboard {
+    width: min(100% - 24px, 1380px);
+    padding-top: 20px;
+  }
+
+  .indicators {
+    grid-template-columns: 1fr;
+  }
+
+  .module-card {
+    grid-template-columns: 46px 1fr;
+  }
+
+  .status {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

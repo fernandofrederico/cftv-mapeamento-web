@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | CFTV Mapeamento</title>
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+  <main class="login-page">
+    <section class="login-card">
+      <div class="login-header">
+        <span class="login-icon" aria-hidden="true">▣</span>
+
+        <div>
+          <p class="login-label">Acesso protegido</p>
+          <h1>CFTV Mapeamento</h1>
+          <p>Entre para acessar a dashboard e os documentos.</p>
+        </div>
+      </div>
+
+      <% if (erro) { %>
+        <div class="alert-error" role="alert">
+          <%= erro %>
+        </div>
+      <% } %>
+
+      <form method="post" action="/login" class="login-form">
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="username"
+            required
+            autofocus
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input
+            id="senha"
+            name="senha"
+            type="password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <button type="submit">
+          Entrar
+        </button>
+      </form>
+
+      <footer>
+        <small>Área restrita a usuários autorizados.</small>
+      </footer>
+    </section>
+  </main>
+</body>
+</html>
