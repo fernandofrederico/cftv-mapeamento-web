@@ -7,3 +7,6 @@ coverage/
 dist/
 uploads/
 private/
+
+# Dados reais do CFTV — não versionar
+sql/002_importacao_dados.sql
