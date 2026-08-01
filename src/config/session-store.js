@@ -43,8 +43,13 @@ function createSessionStore(session) {
 
   const MySQLStore = MySQLStoreFactory(session);
 
+  const mysqlHost =
+    databaseConfig.host === 'localhost'
+      ? '127.0.0.1'
+      : databaseConfig.host;
+
   return new MySQLStore({
-    host: databaseConfig.host,
+    host: mysqlHost,
     port: databaseConfig.port,
     user: databaseConfig.user,
     password: databaseConfig.password,
