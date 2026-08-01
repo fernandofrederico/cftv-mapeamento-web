@@ -33,11 +33,37 @@ function obterHashAdministrador() {
     };
   }
 
+  const hashDiretoOriginal = String(
+    process.env.ADMIN_PASSWORD_HASH || ''
+  ).trim();
+
+  let hashDireto = hashDiretoOriginal;
+
+  const possuiAspasDuplas =
+    hashDireto.startsWith('"') &&
+    hashDireto.endsWith('"');
+
+  const possuiAspasSimples =
+    hashDireto.startsWith("'") &&
+    hashDireto.endsWith("'");
+
+  if (possuiAspasDuplas || possuiAspasSimples) {
+    hashDireto = hashDireto.slice(1, -1).trim();
+  }
+
+  const barrasAntesDoCifrao =
+    (hashDireto.match(/\\\$/g) || []).length;
+
+  hashDireto = hashDireto.replace(/\\\$/g, '$');
+
   return {
-    hash: String(
-      process.env.ADMIN_PASSWORD_HASH || ''
-    ).trim(),
-    origem: 'direto',
+    hash: hashDireto,
+    origem:
+      hashDireto !== hashDiretoOriginal
+        ? 'direto-normalizado'
+        : 'direto',
+    tamanhoOriginal: hashDiretoOriginal.length,
+    barrasRemovidas: barrasAntesDoCifrao,
   };
 }
 
@@ -87,7 +113,11 @@ router.post('/login', requireGuest, async (req, res, next) => {
         origemHash: resultadoHash.origem,
         hashPresente: Boolean(senhaHash),
         hashValido,
+        tamanhoHashOriginal:
+          resultadoHash.tamanhoOriginal ?? senhaHash.length,
         tamanhoHash: senhaHash.length,
+        barrasRemovidas:
+          resultadoHash.barrasRemovidas ?? 0,
         senhaCorresponde: senhaCorreta,
       });
 
