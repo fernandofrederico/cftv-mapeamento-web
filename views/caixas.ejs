@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | CFTV Mapeamento</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/caixas.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Infraestrutura de CFTV</p>
+      <h1>Caixas e switches</h1>
+    </div>
+
+    <div class="user-area">
+      <div>
+        <strong><%= usuario.nome %></strong>
+        <small><%= usuario.email %></small>
+      </div>
+
+      <form method="post" action="/logout">
+        <button type="submit" class="logout-button">Sair</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="dashboard caixas-page">
+    <section class="page-heading">
+      <div>
+        <a href="/dashboard" class="back-link">← Voltar ao dashboard</a>
+        <p class="eyebrow">Cadastro técnico</p>
+        <h2>Caixas técnicas e switches PoE</h2>
+        <p>
+          Consulte localização, identificação do switch,
+          endereço IP, portas e quantidade de câmeras.
+        </p>
+      </div>
+
+      <strong class="total-badge">
+        <%= caixas.length %> caixas
+      </strong>
+    </section>
+
+    <% if (caixas.length === 0) { %>
+      <section class="empty-state">
+        <h3>Nenhuma caixa cadastrada</h3>
+        <p>Não existem registros disponíveis no banco de dados.</p>
+      </section>
+    <% } else { %>
+      <section class="caixas-grid" aria-label="Lista de caixas">
+        <% caixas.forEach((caixa) => { %>
+          <article class="caixa-card">
+            <header class="caixa-card-header">
+              <div>
+                <span class="caixa-code"><%= caixa.codigo %></span>
+                <h3>
+                  <%= caixa.descricao || 'Caixa técnica' %>
+                </h3>
+              </div>
+
+              <span class="camera-count">
+                <%= caixa.total_cameras %>
+                <%= caixa.total_cameras === 1 ? 'câmera' : 'câmeras' %>
+              </span>
+            </header>
+
+            <dl class="caixa-details">
+              <div>
+                <dt>Localização</dt>
+                <dd><%= caixa.localizacao || 'Não informada' %></dd>
+              </div>
+
+              <div>
+                <dt>Switch</dt>
+                <dd><%= caixa.switch_nome || 'Não informado' %></dd>
+              </div>
+
+              <div>
+                <dt>IP do switch</dt>
+                <dd>
+                  <code><%= caixa.switch_ip || 'Não informado' %></code>
+                </dd>
+              </div>
+
+              <div>
+                <dt>Portas</dt>
+                <dd><%= caixa.switch_portas %></dd>
+              </div>
+            </dl>
+
+            <footer class="caixa-card-footer">
+              <span>
+                Painel:
+                <strong>
+                  <%= caixa.foto_painel ? 'foto cadastrada' : 'sem foto' %>
+                </strong>
+              </span>
+
+              <span>
+                Switch:
+                <strong>
+                  <%= caixa.foto_switch ? 'foto cadastrada' : 'sem foto' %>
+                </strong>
+              </span>
+            </footer>
+          </article>
+        <% }); %>
+      </section>
+    <% } %>
+  </main>
+</body>
+</html>
