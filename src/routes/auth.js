@@ -17,26 +17,47 @@ router.get('/login', requireGuest, (req, res) => {
 
 router.post('/login', requireGuest, async (req, res, next) => {
   try {
-    const email = String(req.body.email || '').trim().toLowerCase();
+    const email = String(req.body.email || '')
+      .trim()
+      .toLowerCase();
+
     const senha = String(req.body.senha || '');
 
     const emailAdministrador = String(
       process.env.ADMIN_EMAIL || ''
-    ).trim().toLowerCase();
+    )
+      .trim()
+      .toLowerCase();
 
-    const senhaHash = process.env.ADMIN_PASSWORD_HASH || '';
+    const senhaHash = String(
+      process.env.ADMIN_PASSWORD_HASH || ''
+    ).trim();
 
-    if (!email || !senha || !emailAdministrador || !senhaHash) {
-      return res.status(401).render('login', {
-        titulo: 'Entrar',
-        erro: 'E-mail ou senha inválidos.',
-      });
+    const emailCorreto =
+      Boolean(email) &&
+      Boolean(emailAdministrador) &&
+      email === emailAdministrador;
+
+    const hashValido =
+      /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(senhaHash);
+
+    let senhaCorreta = false;
+
+    if (senha && hashValido) {
+      senhaCorreta = await bcrypt.compare(senha, senhaHash);
     }
 
-    const emailCorreto = email === emailAdministrador;
-    const senhaCorreta = await bcrypt.compare(senha, senhaHash);
-
     if (!emailCorreto || !senhaCorreta) {
+      console.warn('[AUTH_DIAGNOSTICO]', {
+        emailInformado: Boolean(email),
+        emailConfigurado: Boolean(emailAdministrador),
+        emailCorresponde: emailCorreto,
+        hashPresente: Boolean(senhaHash),
+        hashValido,
+        tamanhoHash: senhaHash.length,
+        senhaCorresponde: senhaCorreta,
+      });
+
       return res.status(401).render('login', {
         titulo: 'Entrar',
         erro: 'E-mail ou senha inválidos.',
