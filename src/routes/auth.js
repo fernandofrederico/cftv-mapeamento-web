@@ -106,20 +106,6 @@ router.post('/login', requireGuest, async (req, res, next) => {
     }
 
     if (!emailCorreto || !senhaCorreta) {
-      console.warn('[AUTH_DIAGNOSTICO]', {
-        emailInformado: Boolean(email),
-        emailConfigurado: Boolean(emailAdministrador),
-        emailCorresponde: emailCorreto,
-        origemHash: resultadoHash.origem,
-        hashPresente: Boolean(senhaHash),
-        hashValido,
-        tamanhoHashOriginal:
-          resultadoHash.tamanhoOriginal ?? senhaHash.length,
-        tamanhoHash: senhaHash.length,
-        barrasRemovidas:
-          resultadoHash.barrasRemovidas ?? 0,
-        senhaCorresponde: senhaCorreta,
-      });
 
       return res.status(401).render('login', {
         titulo: 'Entrar',
