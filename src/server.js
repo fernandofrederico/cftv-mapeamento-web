@@ -6,12 +6,14 @@ const session = require('express-session');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+const { createSessionStore } = require('./config/session-store');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
+const sessionStore = createSessionStore(session);
 
 if (isProduction) {
   app.set('trust proxy', 1);
@@ -38,6 +40,7 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(
   session({
     name: 'cftv.sid',
+    ...(sessionStore ? { store: sessionStore } : {}),
     secret:
       process.env.SESSION_SECRET ||
       'chave-apenas-para-desenvolvimento-local',
