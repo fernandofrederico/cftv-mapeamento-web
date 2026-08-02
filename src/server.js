@@ -10,6 +10,7 @@ const { createSessionStore } = require('./config/session-store');
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const caixasRoutes = require('./routes/caixas');
+const mapaRoutes = require('./routes/mapa');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -74,6 +75,7 @@ app.get('/', (req, res) => {
 app.use(authRoutes);
 app.use(dashboardRoutes);
 app.use(caixasRoutes);
+app.use(mapaRoutes);
 
 app.use((req, res) => {
   res.status(404).send('Página não encontrada.');

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | CFTV Mapeamento</title>
+  <link rel="stylesheet" href="/css/app-shell.css">
+</head>
+<body>
+  <div class="app-shell">
+    <%- include('partials/sidebar', { active: 'mapa', usuario: usuario }) %>
+
+    <main class="main map-page">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Infraestrutura de CFTV</p>
+          <h1>Mapa</h1>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="map-toolbar">
+          <p>
+            <% if (caixas.length === 0) { %>
+              Nenhuma caixa cadastrada ainda.
+            <% } else { %>
+              Arraste os marcadores para reposicionar cada caixa no mapa.
+            <% } %>
+          </p>
+
+          <form
+            class="upload-form"
+            action="/mapa/imagem"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <label class="btn secondary" for="mapaArquivo">
+              <%= imagemMapa ? 'Trocar imagem do mapa' : 'Enviar imagem do mapa' %>
+            </label>
+            <input
+              id="mapaArquivo"
+              name="mapa"
+              type="file"
+              accept=".png,.jpg,.jpeg,.webp"
+              onchange="this.form.submit()"
+            >
+          </form>
+        </div>
+
+        <% if (erroUpload) { %>
+          <div class="alert-error" style="margin:14px 22px;padding:12px;border-radius:8px;background:#fff0f0;color:#9c3030;border:1px solid #e6b7b7;font-size:13px;">
+            <%= erroUpload %>
+          </div>
+        <% } %>
+
+        <div class="map-viewport" id="mapViewport">
+          <% if (!imagemMapa) { %>
+            <div class="map-empty">
+              <div class="empty-state">
+                <h3>Nenhum mapa enviado</h3>
+                <p>Envie uma imagem para começar a posicionar as caixas.</p>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="map-stage" id="mapStage">
+              <img
+                id="mapImage"
+                class="map-image"
+                src="<%= imagemMapa %>"
+                alt="Mapa"
+              >
+              <div class="markers-layer" id="markersLayer">
+                <% caixas.forEach((caixa) => { %>
+                  <div
+                    class="marker"
+                    data-id="<%= caixa.id %>"
+                    style="left:<%= caixa.pos_x %>px; top:<%= caixa.pos_y %>px;"
+                  >
+                    <span class="marker-icon" aria-hidden="true">▦</span>
+                    <span class="marker-label"><%= caixa.codigo %></span>
+                  </div>
+                <% }); %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <% if (imagemMapa && caixas.length > 0) { %>
+          <p class="map-help">Arraste um marcador para reposicionar • a posição é salva automaticamente</p>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/mapa.js"></script>
+</body>
+</html>

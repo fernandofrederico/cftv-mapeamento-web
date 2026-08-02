@@ -422,6 +422,134 @@ tbody tr:hover {
   color: var(--texto-escuro);
 }
 
+/* Mapa interativo */
+.map-page .content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 22px;
+  background: #fff;
+  border-bottom: 1px solid var(--cinza-borda);
+}
+
+.map-toolbar p {
+  margin: 0;
+  color: var(--cinza-texto);
+  font-size: 13px;
+}
+
+.upload-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-form input[type="file"] {
+  display: none;
+}
+
+.map-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 520px;
+  overflow: auto;
+  background: #dfe5eb;
+}
+
+.map-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-empty .empty-state {
+  margin: 0;
+}
+
+.map-stage {
+  position: relative;
+  display: inline-block;
+}
+
+.map-stage img.map-image {
+  display: block;
+  max-width: none;
+  user-select: none;
+  pointer-events: none;
+}
+
+.markers-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+  z-index: 5;
+  touch-action: none;
+}
+
+.marker.dragging {
+  cursor: grabbing;
+  z-index: 20;
+}
+
+.marker-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--azul-primario);
+  color: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px #0004;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.marker-label {
+  margin-top: 5px;
+  padding: 3px 8px;
+  background: #fff;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px #0003;
+  color: var(--texto-escuro);
+}
+
+.map-help {
+  position: sticky;
+  bottom: 12px;
+  left: 0;
+  width: fit-content;
+  margin: 0 auto -46px;
+  background: #ffffffdd;
+  border: 1px solid #cdd8e1;
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: #536b7c;
+  font-size: 12px;
+}
+
 @media (max-width: 900px) {
   .sidebar {
     width: 210px;
