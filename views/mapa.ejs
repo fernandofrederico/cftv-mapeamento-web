@@ -74,6 +74,15 @@
                   <div
                     class="marker"
                     data-id="<%= caixa.id %>"
+                    data-codigo="<%= caixa.codigo %>"
+                    data-descricao="<%= caixa.descricao || '' %>"
+                    data-localizacao="<%= caixa.localizacao || '' %>"
+                    data-switch-nome="<%= caixa.switch_nome || '' %>"
+                    data-switch-ip="<%= caixa.switch_ip || '' %>"
+                    data-switch-portas="<%= caixa.switch_portas %>"
+                    data-total-cameras="<%= caixa.total_cameras %>"
+                    data-foto-painel="<%= caixa.foto_painel ? '1' : '' %>"
+                    data-foto-switch="<%= caixa.foto_switch ? '1' : '' %>"
                     style="left:<%= caixa.pos_x %>px; top:<%= caixa.pos_y %>px;"
                   >
                     <span class="marker-icon" aria-hidden="true">▦</span>
@@ -90,6 +99,52 @@
         <% } %>
       </div>
     </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="caixaModalBackdrop">
+    <div class="modal small">
+      <div class="modal-head">
+        <h2 id="caixaModalTitulo">Caixa</h2>
+        <button type="button" class="close-x" id="caixaModalFechar" aria-label="Fechar">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <dl class="caixa-modal-details">
+          <div>
+            <dt>Descrição</dt>
+            <dd id="caixaModalDescricao">—</dd>
+          </div>
+          <div>
+            <dt>Localização</dt>
+            <dd id="caixaModalLocalizacao">—</dd>
+          </div>
+          <div>
+            <dt>Switch</dt>
+            <dd id="caixaModalSwitch">—</dd>
+          </div>
+          <div>
+            <dt>IP do switch</dt>
+            <dd><code id="caixaModalIp">—</code></dd>
+          </div>
+          <div>
+            <dt>Portas</dt>
+            <dd id="caixaModalPortas">—</dd>
+          </div>
+          <div>
+            <dt>Câmeras</dt>
+            <dd id="caixaModalCameras">—</dd>
+          </div>
+          <div>
+            <dt>Fotos</dt>
+            <dd id="caixaModalFotos">—</dd>
+          </div>
+        </dl>
+
+        <a href="/caixas" class="btn secondary" style="margin-top:6px;display:inline-block;">
+          Ver todas as caixas →
+        </a>
+      </div>
+    </div>
   </div>
 
   <script src="/js/mapa.js"></script>

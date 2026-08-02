@@ -73,11 +73,32 @@ router.get('/mapa', requireAuth, async (req, res, next) => {
   try {
     const pool = getDatabasePool();
 
-    const [caixas] = await pool.query(`
-      SELECT id, codigo, descricao, localizacao, pos_x, pos_y
-      FROM caixas
-      ORDER BY codigo
+    const [caixasBrutas] = await pool.query(`
+      SELECT
+        caixa.id,
+        caixa.codigo,
+        caixa.descricao,
+        caixa.localizacao,
+        caixa.pos_x,
+        caixa.pos_y,
+        caixa.switch_nome,
+        caixa.switch_ip,
+        caixa.switch_portas,
+        caixa.foto_painel,
+        caixa.foto_switch,
+        (
+          SELECT COUNT(*)
+          FROM cameras AS camera
+          WHERE camera.caixa_id = caixa.id
+        ) AS total_cameras
+      FROM caixas AS caixa
+      ORDER BY caixa.codigo
     `);
+
+    const caixas = caixasBrutas.map((caixa) => ({
+      ...caixa,
+      total_cameras: Number(caixa.total_cameras),
+    }));
 
     const configuracao = await buscarConfiguracaoMapa(pool);
 
