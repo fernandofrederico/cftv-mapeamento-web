@@ -1,0 +1,45 @@
+<aside class="sidebar">
+  <div class="brand">
+    <strong>CFTV</strong>
+    <small>Mapeamento</small>
+  </div>
+
+  <a href="/dashboard" class="nav-btn <%= active === 'dashboard' ? 'active' : '' %>">
+    <span aria-hidden="true">▣</span> Dashboard
+  </a>
+
+  <a href="/caixas" class="nav-btn <%= active === 'caixas' ? 'active' : '' %>">
+    <span aria-hidden="true">▦</span> Caixas e switches
+  </a>
+
+  <span class="nav-btn disabled">
+    <span aria-hidden="true">⌖</span> Mapa
+    <span class="badge-soon">em breve</span>
+  </span>
+
+  <span class="nav-btn disabled">
+    <span aria-hidden="true">◉</span> Câmeras
+    <span class="badge-soon">em breve</span>
+  </span>
+
+  <span class="nav-btn disabled">
+    <span aria-hidden="true">◇</span> Diagrama
+    <span class="badge-soon">em breve</span>
+  </span>
+
+  <span class="nav-btn disabled">
+    <span aria-hidden="true">▤</span> Documentos
+    <span class="badge-soon">em breve</span>
+  </span>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="current-user">
+    <strong><%= usuario.nome %></strong>
+    <small><%= usuario.email %></small>
+  </div>
+
+  <form method="post" action="/logout">
+    <button type="submit" class="sidebar-util">⏻ Sair</button>
+  </form>
+</aside>

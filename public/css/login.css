@@ -1,17 +1,5 @@
 :root {
-  font-family: Arial, Helvetica, sans-serif;
-  color-scheme: dark;
-  --bg: #07111f;
-  --card: #0f1d2d;
-  --card-border: #26384d;
-  --text: #f4f7fb;
-  --muted: #9fb0c3;
-  --primary: #f28c28;
-  --primary-hover: #ff9f3f;
-  --input: #0a1624;
-  --danger-bg: #3b151a;
-  --danger-border: #8e2d38;
-  --danger-text: #ffd5d9;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
 * {
@@ -20,137 +8,197 @@
 
 body {
   margin: 0;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top right, rgba(242, 140, 40, 0.16), transparent 30%),
-    linear-gradient(135deg, #050b13, var(--bg));
-  color: var(--text);
 }
 
-.login-page {
+.login-body {
+  min-height: 100vh;
+  background: radial-gradient(circle at 78% 18%, #ffffff 0, #edf3f7 32%, #e4edf3 68%, #dce7ee 100%);
+}
+
+.login-shell {
   min-height: 100vh;
   display: grid;
+  grid-template-columns: minmax(420px, 1.12fr) minmax(420px, 0.88fr);
+}
+
+.login-brand {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  padding: clamp(44px, 7vw, 105px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 18% 15%, #315f7f 0, transparent 34%),
+    linear-gradient(145deg, #172839 0%, #203f55 52%, #2c5b78 100%);
+}
+
+.login-brand::before {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border: 1px solid #ffffff12;
+  border-radius: 50%;
+  right: -210px;
+  top: -130px;
+  box-shadow: 0 0 0 70px #ffffff08, 0 0 0 140px #ffffff05;
+}
+
+.login-brand::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #2d8ac8, #62b8e5, #2d8ac8);
+}
+
+.login-logo {
+  position: relative;
+  z-index: 1;
+  width: 78px;
+  height: 78px;
+  border-radius: 20px;
+  display: grid;
   place-items: center;
-  padding: 24px;
+  font-size: 23px;
+  font-weight: 900;
+  background: linear-gradient(145deg, #42a2df, #2378b2);
+  box-shadow: 0 18px 45px #08172566, inset 0 1px 0 #ffffff55;
+}
+
+.login-brand h1 {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  margin: 30px 0 0;
+  font-size: clamp(30px, 4vw, 54px);
+  line-height: 1.08;
+  letter-spacing: -1.2px;
+}
+
+.login-brand p {
+  position: relative;
+  z-index: 1;
+  color: #d5e1e9;
+  font-size: 17px;
+  margin: 16px 0 0;
+  max-width: 480px;
+}
+
+.login-brand-line {
+  position: relative;
+  z-index: 1;
+  width: 76px;
+  height: 5px;
+  margin-top: 25px;
+  border-radius: 999px;
+  background: #42a2df;
+  box-shadow: 0 0 22px #42a2df77;
 }
 
 .login-card {
-  width: min(100%, 460px);
-  padding: 32px;
-  background: rgba(15, 29, 45, 0.96);
-  border: 1px solid var(--card-border);
-  border-radius: 18px;
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
+  align-self: center;
+  margin: auto;
+  width: min(430px, 88%);
+  background: #fff;
+  border: 1px solid #ffffff;
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: 0 24px 70px #18364c24, 0 2px 8px #18364c12;
 }
 
-.login-header {
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
-  margin-bottom: 28px;
+.login-card h2 {
+  margin: 0 0 24px;
+  color: #20384b;
+  font-size: 25px;
+  letter-spacing: -0.35px;
 }
 
-.login-icon {
-  display: grid;
-  place-items: center;
-  flex: 0 0 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: var(--primary);
-  color: #101820;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.login-label {
-  margin: 0 0 5px;
-  color: var(--primary);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-}
-
-h1 {
-  margin: 0 0 8px;
-  font-size: clamp(1.55rem, 4vw, 2rem);
-}
-
-.login-header p:last-child {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-.alert-error {
-  margin-bottom: 20px;
-  padding: 13px 14px;
-  border: 1px solid var(--danger-border);
-  border-radius: 10px;
-  background: var(--danger-bg);
-  color: var(--danger-text);
-}
-
-.login-form {
+.login-card form {
   display: grid;
   gap: 18px;
 }
 
 .form-group {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
-label {
-  font-size: 0.92rem;
-  font-weight: 700;
+.form-group label {
+  color: #3a5264;
+  font-size: 13px;
+  font-weight: 750;
 }
 
-input {
-  width: 100%;
+.form-group input {
   min-height: 46px;
-  padding: 0 14px;
-  border: 1px solid var(--card-border);
   border-radius: 10px;
+  border: 1px solid #cbd8e1;
+  background: #f8fafc;
+  padding: 0 13px;
+  font-size: 14px;
+  color: #243447;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+
+.form-group input:focus {
   outline: none;
-  background: var(--input);
-  color: var(--text);
-  font-size: 1rem;
+  background: #fff;
+  border-color: #3287bd;
+  box-shadow: 0 0 0 4px #3287bd1c;
 }
 
-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(242, 140, 40, 0.16);
-}
-
-button {
-  min-height: 48px;
-  margin-top: 4px;
-  border: 0;
+.login-card button[type="submit"] {
+  min-height: 46px;
   border-radius: 10px;
-  background: var(--primary);
-  color: #101820;
-  font-size: 1rem;
-  font-weight: 800;
+  border: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: #2d78ad;
+  box-shadow: 0 9px 22px #2d78ad2c;
   cursor: pointer;
 }
 
-button:hover {
-  background: var(--primary-hover);
+.login-card button[type="submit"]:hover {
+  background: #3487c1;
 }
 
-footer {
-  margin-top: 24px;
-  color: var(--muted);
+.alert-error {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  background: #fff0f0;
+  color: #9c3030;
+  border: 1px solid #e6b7b7;
+  font-size: 13px;
+}
+
+.login-card footer {
+  margin-top: 18px;
   text-align: center;
 }
 
-@media (max-width: 520px) {
-  .login-card {
-    padding: 24px 20px;
+.login-card footer small {
+  color: #728390;
+}
+
+@media (max-width: 800px) {
+  .login-shell {
+    grid-template-columns: 1fr;
   }
 
-  .login-header {
-    flex-direction: column;
+  .login-brand {
+    min-height: 230px;
+    padding: 35px;
+  }
+
+  .login-card {
+    margin: 30px auto;
   }
 }

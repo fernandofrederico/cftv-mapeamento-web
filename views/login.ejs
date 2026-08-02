@@ -6,18 +6,17 @@
   <title><%= titulo %> | CFTV Mapeamento</title>
   <link rel="stylesheet" href="/css/login.css">
 </head>
-<body>
-  <main class="login-page">
-    <section class="login-card">
-      <div class="login-header">
-        <span class="login-icon" aria-hidden="true">▣</span>
+<body class="login-body">
+  <div class="login-shell">
+    <section class="login-brand">
+      <span class="login-logo" aria-hidden="true">▣</span>
+      <h1>Mapeamento de infraestrutura de CFTV</h1>
+      <p>Acesse o painel para consultar caixas técnicas, switches, câmeras e documentos do projeto.</p>
+      <div class="login-brand-line"></div>
+    </section>
 
-        <div>
-          <p class="login-label">Acesso protegido</p>
-          <h1>CFTV Mapeamento</h1>
-          <p>Entre para acessar a dashboard e os documentos.</p>
-        </div>
-      </div>
+    <section class="login-card">
+      <h2>Entrar</h2>
 
       <% if (erro) { %>
         <div class="alert-error" role="alert">
@@ -25,7 +24,7 @@
         </div>
       <% } %>
 
-      <form method="post" action="/login" class="login-form">
+      <form method="post" action="/login">
         <div class="form-group">
           <label for="email">E-mail</label>
           <input
@@ -49,15 +48,13 @@
           >
         </div>
 
-        <button type="submit">
-          Entrar
-        </button>
+        <button type="submit">Entrar</button>
       </form>
 
       <footer>
         <small>Área restrita a usuários autorizados.</small>
       </footer>
     </section>
-  </main>
+  </div>
 </body>
 </html>

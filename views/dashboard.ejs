@@ -4,111 +4,112 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= titulo %> | CFTV Mapeamento</title>
-  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/app-shell.css">
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Sistema protegido</p>
-      <h1>CFTV Mapeamento</h1>
-    </div>
+  <div class="app-shell">
+    <%- include('partials/sidebar', { active: 'dashboard', usuario: usuario }) %>
 
-    <div class="user-area">
-      <div>
-        <strong><%= usuario.nome %></strong>
-        <small><%= usuario.email %></small>
-      </div>
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Visão geral</p>
+          <h1>Bem-vindo, <%= usuario.nome %></h1>
+        </div>
+      </header>
 
-      <form method="post" action="/logout">
-        <button type="submit" class="logout-button">Sair</button>
-      </form>
-    </div>
-  </header>
-
-  <main class="dashboard">
-    <section class="welcome">
-      <div>
-        <p class="eyebrow">Visão geral</p>
-        <h2>Bem-vindo, <%= usuario.nome %></h2>
+      <div class="content">
         <p>
           Consulte mapas, caixas técnicas, switches, câmeras,
           diagramas e documentos do projeto.
         </p>
+
+        <section class="stat-cards" aria-label="Indicadores">
+          <article class="stat-card">
+            <span class="stat-icon blue" aria-hidden="true">▦</span>
+            <div>
+              <strong><%= indicadores.caixas %></strong>
+              <span>Caixas técnicas</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-icon green" aria-hidden="true">◉</span>
+            <div>
+              <strong><%= indicadores.cameras %></strong>
+              <span>Câmeras cadastradas</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-icon amber" aria-hidden="true">◇</span>
+            <div>
+              <strong><%= indicadores.elementosDiagrama %></strong>
+              <span>Elementos do diagrama</span>
+            </div>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-icon purple" aria-hidden="true">▤</span>
+            <div>
+              <strong><%= indicadores.documentos %></strong>
+              <span>Documentos</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="modules">
+          <h2>Módulos do sistema</h2>
+
+          <div class="module-grid">
+            <article class="module-card">
+              <span class="module-icon" aria-hidden="true">⌖</span>
+              <div>
+                <h3>Mapa de CFTV</h3>
+                <p>Visualize a localização das caixas técnicas no mapa.</p>
+                <span class="status preparacao">Em preparação</span>
+              </div>
+            </article>
+
+            <a href="/caixas" class="module-card module-card-link">
+              <span class="module-icon" aria-hidden="true">▦</span>
+              <div>
+                <h3>Caixas e switches</h3>
+                <p>Consulte painéis, switches PoE, portas e fotografias.</p>
+                <span class="status disponivel">Disponível</span>
+              </div>
+            </a>
+
+            <article class="module-card">
+              <span class="module-icon" aria-hidden="true">◉</span>
+              <div>
+                <h3>Câmeras</h3>
+                <p>Pesquise câmeras por número, nome, IP ou localização.</p>
+                <span class="status preparacao">Em preparação</span>
+              </div>
+            </article>
+
+            <article class="module-card">
+              <span class="module-icon" aria-hidden="true">◇</span>
+              <div>
+                <h3>Diagrama</h3>
+                <p>Consulte os equipamentos e as ligações do projeto.</p>
+                <span class="status preparacao">Em preparação</span>
+              </div>
+            </article>
+
+            <article class="module-card">
+              <span class="module-icon" aria-hidden="true">▤</span>
+              <div>
+                <h3>Documentos</h3>
+                <p>Acesse mapas, plantas, relatórios e arquivos autorizados.</p>
+                <span class="status preparacao">Em preparação</span>
+              </div>
+            </article>
+          </div>
+        </section>
       </div>
-    </section>
-
-    <section class="indicators" aria-label="Indicadores">
-      <article class="indicator-card">
-        <span>Caixas técnicas</span>
-        <strong><%= indicadores.caixas %></strong>
-      </article>
-
-      <article class="indicator-card">
-        <span>Câmeras cadastradas</span>
-        <strong><%= indicadores.cameras %></strong>
-      </article>
-
-      <article class="indicator-card">
-        <span>Elementos do diagrama</span>
-        <strong><%= indicadores.elementosDiagrama %></strong>
-      </article>
-
-      <article class="indicator-card">
-        <span>Documentos</span>
-        <strong><%= indicadores.documentos %></strong>
-      </article>
-    </section>
-
-    <section class="modules">
-      <h2>Módulos do sistema</h2>
-
-      <div class="module-grid">
-        <article class="module-card">
-          <span class="module-icon" aria-hidden="true">⌖</span>
-          <div>
-            <h3>Mapa de CFTV</h3>
-            <p>Visualize a localização das caixas técnicas no mapa.</p>
-          </div>
-          <span class="status">Em preparação</span>
-        </article>
-
-        <a href="/caixas" class="module-card module-card-link">
-          <span class="module-icon" aria-hidden="true">▦</span>
-          <div>
-            <h3>Caixas e switches</h3>
-            <p>Consulte painéis, switches PoE, portas e fotografias.</p>
-          </div>
-          <span class="status">Disponível</span>
-        </a>
-
-        <article class="module-card">
-          <span class="module-icon" aria-hidden="true">◉</span>
-          <div>
-            <h3>Câmeras</h3>
-            <p>Pesquise câmeras por número, nome, IP ou localização.</p>
-          </div>
-          <span class="status">Em preparação</span>
-        </article>
-
-        <article class="module-card">
-          <span class="module-icon" aria-hidden="true">◇</span>
-          <div>
-            <h3>Diagrama</h3>
-            <p>Consulte os equipamentos e as ligações do projeto.</p>
-          </div>
-          <span class="status">Em preparação</span>
-        </article>
-
-        <article class="module-card">
-          <span class="module-icon" aria-hidden="true">▤</span>
-          <div>
-            <h3>Documentos</h3>
-            <p>Acesse mapas, plantas, relatórios e arquivos autorizados.</p>
-          </div>
-          <span class="status">Em preparação</span>
-        </article>
-      </div>
-    </section>
-  </main>
+    </main>
+  </div>
 </body>
 </html>
