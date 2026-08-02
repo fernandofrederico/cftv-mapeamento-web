@@ -73,32 +73,11 @@ router.get('/mapa', requireAuth, async (req, res, next) => {
   try {
     const pool = getDatabasePool();
 
-    const [caixasBrutas] = await pool.query(`
-      SELECT
-        caixa.id,
-        caixa.codigo,
-        caixa.descricao,
-        caixa.localizacao,
-        caixa.pos_x,
-        caixa.pos_y,
-        caixa.switch_nome,
-        caixa.switch_ip,
-        caixa.switch_portas,
-        caixa.foto_painel,
-        caixa.foto_switch,
-        (
-          SELECT COUNT(*)
-          FROM cameras AS camera
-          WHERE camera.caixa_id = caixa.id
-        ) AS total_cameras
-      FROM caixas AS caixa
-      ORDER BY caixa.codigo
+    const [caixas] = await pool.query(`
+      SELECT id, codigo, pos_x, pos_y
+      FROM caixas
+      ORDER BY codigo
     `);
-
-    const caixas = caixasBrutas.map((caixa) => ({
-      ...caixa,
-      total_cameras: Number(caixa.total_cameras),
-    }));
 
     const configuracao = await buscarConfiguracaoMapa(pool);
 
@@ -206,6 +185,71 @@ router.post(
       }
 
       return res.json({ ok: true });
+    } catch (erro) {
+      return next(erro);
+    }
+  }
+);
+
+router.get(
+  '/mapa/caixas/:id/detalhes',
+  requireAuth,
+  async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+
+      if (!Number.isInteger(id)) {
+        return res.status(400).json({ ok: false, erro: 'ID inválido.' });
+      }
+
+      const pool = getDatabasePool();
+
+      const [caixas] = await pool.query(
+        `SELECT id, codigo, descricao, localizacao,
+                switch_nome, switch_ip, switch_portas,
+                foto_painel, foto_switch
+         FROM caixas
+         WHERE id = ?`,
+        [id]
+      );
+
+      const caixa = caixas[0];
+
+      if (!caixa) {
+        return res.status(404).json({ ok: false, erro: 'Caixa não encontrada.' });
+      }
+
+      const [cameras] = await pool.query(
+        `SELECT porta, numero, nome, ip, localizacao, observacoes
+         FROM cameras
+         WHERE caixa_id = ?
+         ORDER BY porta`,
+        [id]
+      );
+
+      const caminhoWebValido = (caminho) =>
+        Boolean(caminho) &&
+        (caminho.startsWith('/') || caminho.startsWith('http'));
+
+      return res.json({
+        ok: true,
+        caixa: {
+          id: caixa.id,
+          codigo: caixa.codigo,
+          descricao: caixa.descricao,
+          localizacao: caixa.localizacao,
+          switch_nome: caixa.switch_nome,
+          switch_ip: caixa.switch_ip,
+          switch_portas: caixa.switch_portas,
+          foto_painel_url: caminhoWebValido(caixa.foto_painel)
+            ? caixa.foto_painel
+            : null,
+          foto_switch_url: caminhoWebValido(caixa.foto_switch)
+            ? caixa.foto_switch
+            : null,
+        },
+        cameras,
+      });
     } catch (erro) {
       return next(erro);
     }

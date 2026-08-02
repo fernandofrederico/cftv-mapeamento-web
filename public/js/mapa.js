@@ -11,6 +11,7 @@
   let inicioX = 0;
   let inicioY = 0;
   let houveArraste = false;
+  let camerasDaCaixaAtual = [];
 
   function limitesDoPalco() {
     const palco = document.getElementById('mapStage');
@@ -22,39 +23,137 @@
     return texto || fallback;
   }
 
-  function abrirModal(marcador) {
+  function montarPreviewFoto(elemento, url, textoAlternativo) {
+    elemento.innerHTML = '';
+
+    if (!url) {
+      elemento.textContent =
+        'Sem foto disponível (arquivo do sistema antigo, fora do site)';
+      return;
+    }
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = textoAlternativo;
+    elemento.appendChild(img);
+  }
+
+  function esconderDetalheCamera() {
+    const painel = document.getElementById('caixaModalCameraDetalhe');
+    if (painel) {
+      painel.classList.add('hidden');
+    }
+  }
+
+  function mostrarDetalheCamera(camera, porta) {
+    const painel = document.getElementById('caixaModalCameraDetalhe');
+    document.getElementById('cameraDetalheTitulo').textContent =
+      `Porta ${String(porta).padStart(2, '0')}`;
+    document.getElementById('cameraDetalheNumero').textContent =
+      textoOu(camera.numero, '—');
+    document.getElementById('cameraDetalheNome').textContent =
+      textoOu(camera.nome, '—');
+    document.getElementById('cameraDetalheIp').textContent =
+      textoOu(camera.ip, '—');
+    document.getElementById('cameraDetalheLocalizacao').textContent =
+      textoOu(camera.localizacao, '—');
+    document.getElementById('cameraDetalheObservacoes').textContent =
+      textoOu(camera.observacoes, '—');
+    painel.classList.remove('hidden');
+  }
+
+  function montarGridDePortas(totalPortas, cameras) {
+    const grid = document.getElementById('caixaModalPortasGrid');
+    grid.innerHTML = '';
+
+    const cameraPorPorta = new Map(
+      cameras.map((camera) => [camera.porta, camera])
+    );
+
+    for (let porta = 1; porta <= totalPortas; porta += 1) {
+      const camera = cameraPorPorta.get(porta);
+      const botao = document.createElement('button');
+      botao.type = 'button';
+      botao.className = `port-btn ${camera ? 'used' : 'free'}`;
+      botao.innerHTML = `${String(porta).padStart(2, '0')}<br>${
+        camera ? textoOu(camera.numero || camera.nome, 'Câmera') : 'Livre'
+      }`;
+
+      if (camera) {
+        botao.addEventListener('click', () => {
+          mostrarDetalheCamera(camera, porta);
+        });
+      }
+
+      grid.appendChild(botao);
+    }
+  }
+
+  function ativarAba(nomeAba) {
+    document.querySelectorAll('.tab').forEach((botao) => {
+      botao.classList.toggle('active', botao.dataset.tab === nomeAba);
+    });
+
+    document.querySelectorAll('.tab-panel').forEach((painel) => {
+      painel.classList.toggle('active', painel.id === `tab-${nomeAba}`);
+    });
+  }
+
+  async function abrirModal(marcador) {
     if (!modalBackdrop) {
       return;
     }
 
-    const dados = marcador.dataset;
+    const id = marcador.dataset.id;
+    const codigo = marcador.dataset.codigo || 'Caixa';
 
-    document.getElementById('caixaModalTitulo').textContent =
-      dados.codigo || 'Caixa';
-    document.getElementById('caixaModalDescricao').textContent =
-      textoOu(dados.descricao, 'Caixa técnica');
-    document.getElementById('caixaModalLocalizacao').textContent =
-      textoOu(dados.localizacao, 'Não informada');
-    document.getElementById('caixaModalSwitch').textContent =
-      textoOu(dados.switchNome, 'Não informado');
-    document.getElementById('caixaModalIp').textContent =
-      textoOu(dados.switchIp, 'Não informado');
-    document.getElementById('caixaModalPortas').textContent =
-      dados.switchPortas || '—';
-
-    const totalCameras = Number(dados.totalCameras || 0);
-    document.getElementById('caixaModalCameras').textContent =
-      `${totalCameras} ${totalCameras === 1 ? 'câmera' : 'câmeras'}`;
-
-    const painel = dados.fotoPainel ? 'painel' : null;
-    const switchFoto = dados.fotoSwitch ? 'switch' : null;
-    const fotos = [painel, switchFoto].filter(Boolean);
-    document.getElementById('caixaModalFotos').textContent =
-      fotos.length > 0
-        ? `Foto do ${fotos.join(' e do ')} cadastrada`
-        : 'Nenhuma foto cadastrada';
-
+    document.getElementById('caixaModalTitulo').textContent = codigo;
+    ativarAba('geral');
+    esconderDetalheCamera();
     modalBackdrop.classList.remove('hidden');
+
+    document.getElementById('caixaModalDescricao').textContent = 'Carregando…';
+    document.getElementById('caixaModalLocalizacao').textContent = '';
+    document.getElementById('caixaModalSwitch').textContent = '';
+    document.getElementById('caixaModalIp').textContent = '';
+    document.getElementById('caixaModalPortasGrid').innerHTML = '';
+
+    try {
+      const resposta = await fetch(`/mapa/caixas/${id}/detalhes`);
+
+      if (!resposta.ok) {
+        throw new Error('Falha ao carregar detalhes.');
+      }
+
+      const dados = await resposta.json();
+      const caixa = dados.caixa;
+      camerasDaCaixaAtual = dados.cameras || [];
+
+      document.getElementById('caixaModalDescricao').textContent =
+        textoOu(caixa.descricao, 'Caixa técnica');
+      document.getElementById('caixaModalLocalizacao').textContent =
+        textoOu(caixa.localizacao, 'Não informada');
+      document.getElementById('caixaModalSwitch').textContent =
+        textoOu(caixa.switch_nome, 'Não informado');
+      document.getElementById('caixaModalIp').textContent =
+        textoOu(caixa.switch_ip, 'Não informado');
+
+      montarPreviewFoto(
+        document.getElementById('caixaModalFotoPainel'),
+        caixa.foto_painel_url,
+        'Foto do painel'
+      );
+      montarPreviewFoto(
+        document.getElementById('caixaModalFotoSwitch'),
+        caixa.foto_switch_url,
+        'Foto do switch'
+      );
+
+      montarGridDePortas(caixa.switch_portas, camerasDaCaixaAtual);
+    } catch (erro) {
+      document.getElementById('caixaModalDescricao').textContent =
+        'Não foi possível carregar os detalhes desta caixa.';
+    }
   }
 
   function fecharModal() {
@@ -175,6 +274,10 @@
     markersLayer.addEventListener('pointerup', finalizarArraste);
     markersLayer.addEventListener('pointercancel', finalizarArraste);
   }
+
+  document.querySelectorAll('.tab').forEach((botao) => {
+    botao.addEventListener('click', () => ativarAba(botao.dataset.tab));
+  });
 
   if (modalBackdrop) {
     document

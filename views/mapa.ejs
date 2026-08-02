@@ -75,14 +75,6 @@
                     class="marker"
                     data-id="<%= caixa.id %>"
                     data-codigo="<%= caixa.codigo %>"
-                    data-descricao="<%= caixa.descricao || '' %>"
-                    data-localizacao="<%= caixa.localizacao || '' %>"
-                    data-switch-nome="<%= caixa.switch_nome || '' %>"
-                    data-switch-ip="<%= caixa.switch_ip || '' %>"
-                    data-switch-portas="<%= caixa.switch_portas %>"
-                    data-total-cameras="<%= caixa.total_cameras %>"
-                    data-foto-painel="<%= caixa.foto_painel ? '1' : '' %>"
-                    data-foto-switch="<%= caixa.foto_switch ? '1' : '' %>"
                     style="left:<%= caixa.pos_x %>px; top:<%= caixa.pos_y %>px;"
                   >
                     <span class="marker-icon" aria-hidden="true">▦</span>
@@ -102,13 +94,18 @@
   </div>
 
   <div class="modal-backdrop hidden" id="caixaModalBackdrop">
-    <div class="modal small">
-      <div class="modal-head">
+    <div class="modal large">
+      <header class="modal-head">
         <h2 id="caixaModalTitulo">Caixa</h2>
         <button type="button" class="close-x" id="caixaModalFechar" aria-label="Fechar">&times;</button>
+      </header>
+
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="geral">Painel e switch</button>
+        <button type="button" class="tab" data-tab="portas">Portas e câmeras</button>
       </div>
 
-      <div class="modal-body">
+      <div id="tab-geral" class="tab-panel active">
         <dl class="caixa-modal-details">
           <div>
             <dt>Descrição</dt>
@@ -126,24 +123,54 @@
             <dt>IP do switch</dt>
             <dd><code id="caixaModalIp">—</code></dd>
           </div>
-          <div>
-            <dt>Portas</dt>
-            <dd id="caixaModalPortas">—</dd>
-          </div>
-          <div>
-            <dt>Câmeras</dt>
-            <dd id="caixaModalCameras">—</dd>
-          </div>
-          <div>
-            <dt>Fotos</dt>
-            <dd id="caixaModalFotos">—</dd>
-          </div>
         </dl>
 
-        <a href="/caixas" class="btn secondary" style="margin-top:6px;display:inline-block;">
-          Ver todas as caixas →
-        </a>
+        <div class="images-grid">
+          <div class="image-card">
+            <h3>Foto interna da caixa/painel</h3>
+            <div class="image-preview" id="caixaModalFotoPainel">Nenhuma imagem</div>
+          </div>
+          <div class="image-card">
+            <h3>Foto frontal do switch PoE</h3>
+            <div class="image-preview" id="caixaModalFotoSwitch">Nenhuma imagem</div>
+          </div>
+        </div>
       </div>
+
+      <div id="tab-portas" class="tab-panel">
+        <p>Vermelho = ocupada · verde = livre. Clique numa porta ocupada para ver a câmera.</p>
+        <div id="caixaModalPortasGrid" class="ports-grid"></div>
+
+        <div id="caixaModalCameraDetalhe" class="camera-detalhe hidden">
+          <h4 id="cameraDetalheTitulo">Porta</h4>
+          <dl class="caixa-modal-details">
+            <div>
+              <dt>Número da câmera</dt>
+              <dd id="cameraDetalheNumero">—</dd>
+            </div>
+            <div>
+              <dt>Descrição</dt>
+              <dd id="cameraDetalheNome">—</dd>
+            </div>
+            <div>
+              <dt>IP</dt>
+              <dd id="cameraDetalheIp">—</dd>
+            </div>
+            <div>
+              <dt>Localização</dt>
+              <dd id="cameraDetalheLocalizacao">—</dd>
+            </div>
+            <div>
+              <dt>Observações</dt>
+              <dd id="cameraDetalheObservacoes">—</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <footer class="modal-foot">
+        <a href="/caixas" class="btn secondary">Ver todas as caixas →</a>
+      </footer>
     </div>
   </div>
 
