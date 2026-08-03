@@ -77,8 +77,6 @@
             <table>
               <thead>
                 <tr>
-                  <th>Caixa</th>
-                  <th>Porta</th>
                   <th>Número</th>
                   <th>Descrição</th>
                   <th>IP</th>
@@ -90,8 +88,6 @@
               <tbody>
                 <% cameras.forEach((cam) => { %>
                   <tr>
-                    <td><code><%= cam.caixa_codigo %></code></td>
-                    <td><span class="badge-count"><%= String(cam.porta).padStart(2, '0') %></span></td>
                     <td><%= cam.numero || '—' %></td>
                     <td><%= cam.nome || '—' %></td>
                     <td><code><%= cam.ip || '—' %></code></td>
