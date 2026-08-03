@@ -306,7 +306,6 @@
     const gNodes = document.getElementById('diagramNodes');
     gLinks.innerHTML = '';
     gNodes.innerHTML = '';
-    aplicarViewBox();
 
     const porId = new Map(estado.nodes.map((n) => [n.id, n]));
 
@@ -582,20 +581,65 @@
     }
   });
 
-  // --- Zoom ---
-  function definirZoom(v) {
-    estado.zoom = Math.max(0.25, Math.min(3, v));
-    document.getElementById('diagramZoom').value = Math.round(estado.zoom * 100);
-    document.getElementById('diagramZoomLabel').textContent = `${Math.round(estado.zoom * 100)}%`;
-    aplicarViewBox();
+  // --- Zoom (centrado no cursor do mouse) ---
+  function zoomEm(deltaZoom, clientX, clientY) {
+    const novoZoom = Math.max(0.25, Math.min(3, estado.zoom + deltaZoom));
+
+    if (novoZoom === estado.zoom || !estado.view) {
+      return;
+    }
+
+    const base = estado.viewAjustada || allBounds();
+    const viewAtual = estado.view;
+    const rect = svg.getBoundingClientRect();
+
+    const fracX = (clientX - rect.left) / rect.width;
+    const fracY = (clientY - rect.top) / rect.height;
+
+    const mundoX = viewAtual.x + fracX * viewAtual.w;
+    const mundoY = viewAtual.y + fracY * viewAtual.h;
+
+    const novaLargura = base.w / novoZoom;
+    const novaAltura = base.h / novoZoom;
+
+    estado.zoom = novoZoom;
+    estado.view = {
+      x: mundoX - fracX * novaLargura,
+      y: mundoY - fracY * novaAltura,
+      w: novaLargura,
+      h: novaAltura,
+    };
+
+    svg.setAttribute('viewBox', `${estado.view.x} ${estado.view.y} ${estado.view.w} ${estado.view.h}`);
+    document.getElementById('diagramZoom').value = Math.round(novoZoom * 100);
+    document.getElementById('diagramZoomLabel').textContent = `${Math.round(novoZoom * 100)}%`;
+  }
+
+  function zoomNoCentro(deltaZoom) {
+    const rect = svg.getBoundingClientRect();
+    zoomEm(deltaZoom, rect.left + rect.width / 2, rect.top + rect.height / 2);
+  }
+
+  function definirZoomAbsoluto(v) {
+    zoomNoCentro(Math.max(0.25, Math.min(3, v)) - estado.zoom);
   }
 
   document.getElementById('diagramZoom').addEventListener('input', (evento) => {
-    definirZoom(Number(evento.target.value) / 100);
+    definirZoomAbsoluto(Number(evento.target.value) / 100);
   });
-  document.getElementById('zoomInBtn').addEventListener('click', () => definirZoom(estado.zoom + 0.1));
-  document.getElementById('zoomOutBtn').addEventListener('click', () => definirZoom(estado.zoom - 0.1));
+  document.getElementById('zoomInBtn').addEventListener('click', () => zoomNoCentro(0.15));
+  document.getElementById('zoomOutBtn').addEventListener('click', () => zoomNoCentro(-0.15));
   document.getElementById('fitDiagramBtn').addEventListener('click', () => ajustarDiagrama(true));
+
+  document.getElementById('diagramWork').addEventListener(
+    'wheel',
+    (evento) => {
+      evento.preventDefault();
+      const direcao = evento.deltaY < 0 ? 1 : -1;
+      zoomEm(direcao * 0.12, evento.clientX, evento.clientY);
+    },
+    { passive: false }
+  );
 
   // --- Pan (clicar no fundo do SVG e arrastar) ---
   svg.addEventListener('pointerdown', (evento) => {

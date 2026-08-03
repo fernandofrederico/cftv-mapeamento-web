@@ -1047,6 +1047,7 @@ tbody tr:hover {
   overflow: hidden;
   background: #e8edf1;
   cursor: default;
+  user-select: none;
 }
 
 .diagram-work.panning {
