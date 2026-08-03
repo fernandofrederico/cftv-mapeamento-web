@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | CFTV Mapeamento</title>
+  <link rel="stylesheet" href="/css/app-shell.css?v=<%= assetVersion %>">
+</head>
+<body>
+  <div class="app-shell">
+    <%- include('partials/sidebar', { active: 'diagrama', usuario: usuario }) %>
+
+    <main class="main diagram-page">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Infraestrutura de CFTV</p>
+          <h1>Diagrama de rede</h1>
+        </div>
+      </header>
+
+      <div class="diagram-layout">
+        <aside class="diagram-palette">
+          <h3>Equipamentos</h3>
+          <button class="palette-btn" data-node-type="switch">▤ Switch</button>
+          <button class="palette-btn" data-node-type="box">▣ Caixa técnica</button>
+          <button class="palette-btn" data-node-type="rack">▥ Rack/Data Center</button>
+          <button class="palette-btn" data-node-type="server">▦ Servidor</button>
+          <button class="palette-btn" data-node-type="router">⊕ Roteador</button>
+          <button class="palette-btn" data-node-type="cloud">☁ Nuvem/Internet</button>
+          <button class="palette-btn" data-node-type="text">T Texto</button>
+          <hr>
+          <button id="linkModeBtn" class="btn secondary" style="width:100%;justify-content:center;">Criar ligação</button>
+          <button id="deleteDiagramBtn" class="btn secondary" style="width:100%;justify-content:center;margin-top:8px;color:#9c3030;border-color:#e6b7b7;">Excluir selecionado</button>
+          <p class="hint">Clique em "Criar ligação" e depois em dois equipamentos, na ordem, pra ligar eles.</p>
+        </aside>
+
+        <div class="diagram-work" id="diagramWork">
+          <svg id="diagramSvg" class="diagram-svg">
+            <g id="diagramLinks"></g>
+            <g id="diagramNodes"></g>
+          </svg>
+
+          <div class="diagram-bottom">
+            <button id="zoomOutBtn" class="zoom-btn" type="button">−</button>
+            <input id="diagramZoom" type="range" min="25" max="300" value="100">
+            <button id="zoomInBtn" class="zoom-btn" type="button">＋</button>
+            <span id="diagramZoomLabel">100%</span>
+            <button id="fitDiagramBtn" class="btn secondary" type="button">Ajustar</button>
+            <button id="saveDiagramBtn" class="btn primary" type="button">Salvar diagrama</button>
+          </div>
+        </div>
+
+        <aside id="diagramInspector" class="diagram-inspector">
+          <h3>Propriedades</h3>
+          <div id="inspectorEmpty">Selecione um equipamento ou uma ligação.</div>
+
+          <div id="nodeInspector" class="hidden">
+            <label>Descrição
+              <input id="nodeLabel" type="text">
+            </label>
+            <label>Tamanho
+              <input id="nodeSize" type="number" min="36" max="220">
+            </label>
+            <label>Fonte (0 = automático)
+              <input id="nodeFontSize" type="number" min="0" max="40">
+            </label>
+            <button id="applyNodeBtn" class="btn primary" style="width:100%;justify-content:center;">Aplicar</button>
+          </div>
+
+          <div id="linkInspector" class="hidden">
+            <label>Espessura
+              <input id="linkWidth" type="number" min="1" max="12" step="0.5">
+            </label>
+            <label>Cor
+              <input id="linkColor" type="color">
+            </label>
+            <label>Estilo
+              <select id="linkStyle">
+                <option value="solid">Contínua</option>
+                <option value="dash">Tracejada</option>
+                <option value="dot">Pontilhada</option>
+              </select>
+            </label>
+            <button id="applyLinkBtn" class="btn primary" style="width:100%;justify-content:center;">Aplicar</button>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script id="diagramaDadosIniciais" type="application/json">
+    <%- JSON.stringify({ nodes: nodesIniciais, links: linksIniciais }) %>
+  </script>
+  <script src="/js/diagrama.js?v=<%= assetVersion %>"></script>
+</body>
+</html>

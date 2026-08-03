@@ -950,6 +950,171 @@ tbody tr:hover {
   color: #243447;
 }
 
+.hidden {
+  display: none !important;
+}
+
+/* Diagrama de rede */
+.diagram-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 230px 1fr 230px;
+}
+
+.diagram-palette,
+.diagram-inspector {
+  background: #fff;
+  padding: 16px;
+  border-right: 1px solid var(--cinza-borda);
+  overflow: auto;
+}
+
+.diagram-palette h3,
+.diagram-inspector h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--texto-escuro);
+}
+
+.diagram-inspector {
+  border-right: 0;
+  border-left: 1px solid var(--cinza-borda);
+}
+
+.diagram-inspector label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a5c6a;
+  margin-bottom: 14px;
+}
+
+.diagram-inspector input,
+.diagram-inspector select {
+  min-height: 38px;
+  border-radius: 8px;
+  border: 1px solid #cbd8e1;
+  padding: 0 10px;
+  font-size: 13px;
+  color: #243447;
+  font-weight: 500;
+}
+
+.diagram-inspector input[type="color"] {
+  padding: 2px;
+}
+
+#inspectorEmpty {
+  font-size: 13px;
+  color: #7c8b98;
+}
+
+.palette-btn {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 4px 0;
+  text-align: left;
+  background: #f4f7fa;
+  color: #29485f;
+  border: 1px solid #d3dde5;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 13px;
+}
+
+.palette-btn:hover {
+  background: #e8f1f7;
+}
+
+.diagram-palette hr {
+  border: 0;
+  border-top: 1px solid #e5eaee;
+  margin: 14px 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: #6b7d8a;
+  margin-top: 12px;
+}
+
+.diagram-work {
+  position: relative;
+  overflow: hidden;
+  background: #e8edf1;
+  cursor: default;
+}
+
+.diagram-work.panning {
+  cursor: grabbing;
+}
+
+.diagram-svg {
+  width: 100%;
+  height: calc(100% - 54px);
+  background-image: radial-gradient(#bfcbd4 1px, transparent 1px);
+  background-size: 20px 20px;
+  display: block;
+}
+
+.diagram-node {
+  cursor: grab;
+}
+
+.diagram-node.dragging {
+  cursor: grabbing;
+}
+
+.diagram-node.selected .node-shape {
+  stroke: #f39c12;
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+}
+
+.diagram-link {
+  cursor: pointer;
+}
+
+.diagram-link.selected {
+  filter: drop-shadow(0 0 3px #f39c12);
+}
+
+.diagram-bottom {
+  height: 54px;
+  background: #fff;
+  border-top: 1px solid #d9e1e7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+}
+
+.diagram-bottom input[type="range"] {
+  flex: 1;
+  max-width: 220px;
+}
+
+.diagram-bottom #diagramZoomLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a5c6a;
+  min-width: 40px;
+}
+
+@media (max-width: 900px) {
+  .diagram-layout {
+    grid-template-columns: 180px 1fr;
+  }
+
+  .diagram-inspector {
+    display: none;
+  }
+}
+
 @media (max-width: 900px) {
   .sidebar {
     width: 210px;
