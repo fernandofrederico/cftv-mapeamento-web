@@ -40,6 +40,27 @@
         document.getElementById('editLocalizacao').value = camera.localizacao || '';
         document.getElementById('editObservacoes').value = camera.observacoes || '';
 
+        const auditoria = document.getElementById('cameraModalAuditoria');
+        const formatarData = (valor) => {
+          if (!valor) return null;
+          return new Date(valor).toLocaleString('pt-BR');
+        };
+
+        const linhasAuditoria = [];
+        if (camera.criado_por_nome) {
+          linhasAuditoria.push(
+            `Criado por <strong>${camera.criado_por_nome}</strong> em ${formatarData(camera.criado_em) || '—'}`
+          );
+        }
+        if (camera.atualizado_por_nome) {
+          linhasAuditoria.push(
+            `Última atualização por <strong>${camera.atualizado_por_nome}</strong> em ${formatarData(camera.atualizado_em) || '—'}`
+          );
+        }
+        auditoria.innerHTML = linhasAuditoria.length
+          ? linhasAuditoria.join('<br>')
+          : 'Sem histórico de criação/edição registrado (câmera cadastrada antes desse controle).';
+
         abrirModal();
       } catch (erro) {
         window.alert(erro.message || 'Não foi possível carregar a câmera.');

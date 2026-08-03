@@ -5,6 +5,14 @@ const { getDatabasePool } = require('../config/database');
 
 const router = express.Router();
 
+const CAMPOS_LISTA = `
+  camera.id, camera.caixa_id, camera.porta, camera.numero, camera.nome,
+  camera.ip, camera.localizacao, camera.observacoes,
+  camera.criado_por_nome, camera.criado_em,
+  camera.atualizado_por_nome, camera.atualizado_em,
+  caixa.codigo AS caixa_codigo
+`;
+
 async function buscarCaixasParaSelect(pool) {
   const [caixas] = await pool.query(
     'SELECT id, codigo FROM caixas ORDER BY codigo'
@@ -12,26 +20,20 @@ async function buscarCaixasParaSelect(pool) {
   return caixas;
 }
 
+async function buscarCameras(pool) {
+  const [cameras] = await pool.query(`
+    SELECT ${CAMPOS_LISTA}
+    FROM cameras AS camera
+    INNER JOIN caixas AS caixa ON caixa.id = camera.caixa_id
+    ORDER BY caixa.codigo, camera.porta
+  `);
+  return cameras;
+}
+
 router.get('/cameras', requireAuth, async (req, res, next) => {
   try {
     const pool = getDatabasePool();
-
-    const [cameras] = await pool.query(`
-      SELECT
-        camera.id,
-        camera.caixa_id,
-        camera.porta,
-        camera.numero,
-        camera.nome,
-        camera.ip,
-        camera.localizacao,
-        camera.observacoes,
-        caixa.codigo AS caixa_codigo
-      FROM cameras AS camera
-      INNER JOIN caixas AS caixa ON caixa.id = camera.caixa_id
-      ORDER BY caixa.codigo, camera.porta
-    `);
-
+    const cameras = await buscarCameras(pool);
     const caixas = await buscarCaixasParaSelect(pool);
 
     return res.render('cameras', {
@@ -57,20 +59,15 @@ router.post('/cameras', requireAuth, async (req, res, next) => {
     const observacoes = String(req.body.observacoes || '').trim();
 
     const pool = getDatabasePool();
+    const ator = req.session.usuario;
 
     if (!Number.isInteger(caixaId) || !Number.isInteger(porta) || porta < 1) {
-      const [cameras] = await pool.query(`
-        SELECT camera.id, camera.caixa_id, camera.porta, camera.numero, camera.nome,
-               camera.ip, camera.localizacao, camera.observacoes, caixa.codigo AS caixa_codigo
-        FROM cameras AS camera
-        INNER JOIN caixas AS caixa ON caixa.id = camera.caixa_id
-        ORDER BY caixa.codigo, camera.porta
-      `);
+      const cameras = await buscarCameras(pool);
       const caixas = await buscarCaixasParaSelect(pool);
 
       return res.status(400).render('cameras', {
         titulo: 'Câmeras',
-        usuario: req.session.usuario,
+        usuario: ator,
         cameras,
         caixas,
         erro: 'Escolha a caixa e informe uma porta válida.',
@@ -78,22 +75,23 @@ router.post('/cameras', requireAuth, async (req, res, next) => {
     }
 
     await pool.query(
-      `INSERT INTO cameras (caixa_id, porta, numero, nome, ip, localizacao, observacoes)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [caixaId, porta, numero, nome, ip, localizacao, observacoes]
+      `INSERT INTO cameras
+         (caixa_id, porta, numero, nome, ip, localizacao, observacoes,
+          criado_por_nome, criado_por_email, criado_em,
+          atualizado_por_nome, atualizado_por_email, atualizado_em)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, NOW())`,
+      [
+        caixaId, porta, numero, nome, ip, localizacao, observacoes,
+        ator.nome, ator.email,
+        ator.nome, ator.email,
+      ]
     );
 
     return res.redirect('/cameras');
   } catch (erro) {
     if (erro && erro.code === 'ER_DUP_ENTRY') {
       const pool = getDatabasePool();
-      const [cameras] = await pool.query(`
-        SELECT camera.id, camera.caixa_id, camera.porta, camera.numero, camera.nome,
-               camera.ip, camera.localizacao, camera.observacoes, caixa.codigo AS caixa_codigo
-        FROM cameras AS camera
-        INNER JOIN caixas AS caixa ON caixa.id = camera.caixa_id
-        ORDER BY caixa.codigo, camera.porta
-      `);
+      const cameras = await buscarCameras(pool);
       const caixas = await buscarCaixasParaSelect(pool);
 
       return res.status(400).render('cameras', {
@@ -119,7 +117,9 @@ router.get('/cameras/:id', requireAuth, async (req, res, next) => {
 
     const pool = getDatabasePool();
     const [linhas] = await pool.query(
-      `SELECT id, caixa_id, porta, numero, nome, ip, localizacao, observacoes
+      `SELECT id, caixa_id, porta, numero, nome, ip, localizacao, observacoes,
+              criado_por_nome, criado_por_email, criado_em,
+              atualizado_por_nome, atualizado_por_email, atualizado_em
        FROM cameras
        WHERE id = ?`,
       [id]
@@ -158,12 +158,18 @@ router.put('/cameras/:id', requireAuth, async (req, res, next) => {
     }
 
     const pool = getDatabasePool();
+    const ator = req.session.usuario;
 
     await pool.query(
       `UPDATE cameras
-       SET caixa_id = ?, porta = ?, numero = ?, nome = ?, ip = ?, localizacao = ?, observacoes = ?
+       SET caixa_id = ?, porta = ?, numero = ?, nome = ?, ip = ?, localizacao = ?, observacoes = ?,
+           atualizado_por_nome = ?, atualizado_por_email = ?, atualizado_em = NOW()
        WHERE id = ?`,
-      [caixaId, porta, numero, nome, ip, localizacao, observacoes, id]
+      [
+        caixaId, porta, numero, nome, ip, localizacao, observacoes,
+        ator.nome, ator.email,
+        id,
+      ]
     );
 
     return res.json({ ok: true });

@@ -83,6 +83,7 @@
                   <th>Descrição</th>
                   <th>IP</th>
                   <th>Localização</th>
+                  <th>Última atualização</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -95,6 +96,18 @@
                     <td><%= cam.nome || '—' %></td>
                     <td><code><%= cam.ip || '—' %></code></td>
                     <td><%= cam.localizacao || '—' %></td>
+                    <td>
+                      <% if (cam.atualizado_por_nome) { %>
+                        <span style="font-size:12px;color:#4a5c6a;">
+                          <%= cam.atualizado_por_nome %><br>
+                          <span style="color:#8a99a5;">
+                            <%= new Date(cam.atualizado_em).toLocaleDateString('pt-BR') %>
+                          </span>
+                        </span>
+                      <% } else { %>
+                        <span style="color:#8a99a5;">—</span>
+                      <% } %>
+                    </td>
                     <td style="display:flex;gap:8px;">
                       <button type="button" class="btn secondary btn-editar-camera" data-id="<%= cam.id %>">Editar</button>
                       <form method="post" action="/cameras/<%= cam.id %>/excluir" onsubmit="return confirm('Excluir esta câmera?');">
@@ -120,6 +133,8 @@
 
       <div class="modal-body" style="padding:20px 24px;">
         <div id="cameraModalErro" class="alert-error hidden" style="margin-bottom:14px;padding:12px;border-radius:8px;background:#fff0f0;color:#9c3030;border:1px solid #e6b7b7;font-size:13px;"></div>
+
+        <div id="cameraModalAuditoria" style="margin-bottom:16px;padding:10px 12px;background:#f4f7fa;border:1px solid #e5eaee;border-radius:8px;font-size:12px;color:#5a6c78;line-height:1.7;"></div>
 
         <form id="cameraEditForm" class="novo-usuario-form" style="flex-direction:column;align-items:stretch;">
           <input type="hidden" id="editId">
