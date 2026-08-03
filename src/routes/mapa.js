@@ -1,7 +1,3 @@
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-
 const express = require('express');
 const multer = require('multer');
 
@@ -10,50 +6,17 @@ const { getDatabasePool } = require('../config/database');
 
 const router = express.Router();
 
-const PASTA_UPLOADS = path.join(
-  __dirname,
-  '..',
-  '..',
-  'public',
-  'uploads',
-  'mapa'
-);
-
-fs.mkdirSync(PASTA_UPLOADS, { recursive: true });
-
-const EXTENSOES_PERMITIDAS = new Set([
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.webp',
+const MIMES_PERMITIDOS = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/webp',
 ]);
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, PASTA_UPLOADS);
-  },
-  filename: (req, file, cb) => {
-    const extensao = path
-      .extname(file.originalname)
-      .toLowerCase();
-
-    const nomeUnico = `${Date.now()}-${crypto
-      .randomBytes(6)
-      .toString('hex')}${extensao}`;
-
-    cb(null, nomeUnico);
-  },
-});
-
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 15 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const extensao = path
-      .extname(file.originalname)
-      .toLowerCase();
-
-    if (!EXTENSOES_PERMITIDAS.has(extensao)) {
+    if (!MIMES_PERMITIDOS.has(file.mimetype)) {
       return cb(new Error('Formato de imagem não suportado.'));
     }
 
@@ -63,10 +26,14 @@ const upload = multer({
 
 async function buscarConfiguracaoMapa(pool) {
   const [linhas] = await pool.query(
-    'SELECT imagem_path FROM mapa_config WHERE id = 1'
+    `SELECT
+       (imagem_dados IS NOT NULL) AS tem_imagem,
+       atualizado_em
+     FROM mapa_config
+     WHERE id = 1`
   );
 
-  return linhas[0] || { imagem_path: '' };
+  return linhas[0] || { tem_imagem: 0, atualizado_em: null };
 }
 
 router.get('/mapa', requireAuth, async (req, res, next) => {
@@ -81,13 +48,41 @@ router.get('/mapa', requireAuth, async (req, res, next) => {
 
     const configuracao = await buscarConfiguracaoMapa(pool);
 
+    const versaoImagem = configuracao.atualizado_em
+      ? new Date(configuracao.atualizado_em).getTime()
+      : 0;
+
     return res.render('mapa', {
       titulo: 'Mapa de CFTV',
       usuario: req.session.usuario,
       caixas,
-      imagemMapa: configuracao.imagem_path || null,
+      imagemMapa: configuracao.tem_imagem
+        ? `/mapa/imagem-atual?v=${versaoImagem}`
+        : null,
       erroUpload: null,
     });
+  } catch (erro) {
+    return next(erro);
+  }
+});
+
+router.get('/mapa/imagem-atual', requireAuth, async (req, res, next) => {
+  try {
+    const pool = getDatabasePool();
+
+    const [linhas] = await pool.query(
+      'SELECT imagem_dados, imagem_mime FROM mapa_config WHERE id = 1'
+    );
+
+    const registro = linhas[0];
+
+    if (!registro || !registro.imagem_dados) {
+      return res.status(404).send('Nenhuma imagem cadastrada.');
+    }
+
+    res.set('Content-Type', registro.imagem_mime || 'image/jpeg');
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    return res.send(registro.imagem_dados);
   } catch (erro) {
     return next(erro);
   }
@@ -118,30 +113,16 @@ router.post(
       }
 
       const pool = getDatabasePool();
-      const caminhoPublico = `/uploads/mapa/${req.file.filename}`;
-
-      const configuracaoAnterior = await buscarConfiguracaoMapa(pool);
 
       await pool.query(
-        `INSERT INTO mapa_config (id, imagem_path, atualizado_em)
-         VALUES (1, ?, NOW())
+        `INSERT INTO mapa_config (id, imagem_dados, imagem_mime, atualizado_em)
+         VALUES (1, ?, ?, NOW())
          ON DUPLICATE KEY UPDATE
-           imagem_path = VALUES(imagem_path),
+           imagem_dados = VALUES(imagem_dados),
+           imagem_mime = VALUES(imagem_mime),
            atualizado_em = VALUES(atualizado_em)`,
-        [caminhoPublico]
+        [req.file.buffer, req.file.mimetype]
       );
-
-      if (
-        configuracaoAnterior.imagem_path &&
-        configuracaoAnterior.imagem_path.startsWith('/uploads/mapa/')
-      ) {
-        const arquivoAntigo = path.join(
-          PASTA_UPLOADS,
-          path.basename(configuracaoAnterior.imagem_path)
-        );
-
-        fs.unlink(arquivoAntigo, () => {});
-      }
 
       return res.redirect('/mapa');
     } catch (erro) {
