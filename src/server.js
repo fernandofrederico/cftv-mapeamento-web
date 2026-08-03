@@ -17,6 +17,8 @@ const PORT = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionStore = createSessionStore(session);
 
+app.locals.assetVersion = Date.now();
+
 if (isProduction) {
   app.set('trust proxy', 1);
 }
