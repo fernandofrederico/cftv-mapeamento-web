@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | CFTV Mapeamento</title>
+  <link rel="stylesheet" href="/css/app-shell.css?v=<%= assetVersion %>">
+</head>
+<body>
+  <div class="app-shell">
+    <%- include('partials/sidebar', { active: 'cameras', usuario: usuario }) %>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Infraestrutura de CFTV</p>
+          <h1>Câmeras</h1>
+        </div>
+      </header>
+
+      <div class="content">
+        <p>Cadastre, edite e consulte todas as câmeras do projeto, organizadas por caixa e porta.</p>
+
+        <% if (erro) { %>
+          <div class="alert-error" style="margin:14px 0;padding:12px;border-radius:8px;background:#fff0f0;color:#9c3030;border:1px solid #e6b7b7;font-size:13px;">
+            <%= erro %>
+          </div>
+        <% } %>
+
+        <div class="table-card" style="padding:18px;margin-bottom:22px;">
+          <h3 style="margin:0 0 14px;">Nova câmera</h3>
+
+          <% if (caixas.length === 0) { %>
+            <p style="color:#9c3030;">Cadastre pelo menos uma caixa antes de adicionar câmeras.</p>
+          <% } else { %>
+            <form method="post" action="/cameras" class="novo-usuario-form">
+              <div class="form-group">
+                <label for="caixa_id">Caixa</label>
+                <select id="caixa_id" name="caixa_id" required>
+                  <% caixas.forEach((c) => { %>
+                    <option value="<%= c.id %>"><%= c.codigo %></option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="porta">Porta</label>
+                <input id="porta" name="porta" type="number" min="1" required style="width:90px;">
+              </div>
+              <div class="form-group">
+                <label for="numero">Número</label>
+                <input id="numero" name="numero" type="text" placeholder="CAM-01">
+              </div>
+              <div class="form-group">
+                <label for="nome">Descrição</label>
+                <input id="nome" name="nome" type="text" placeholder="Entrada principal">
+              </div>
+              <div class="form-group">
+                <label for="ip">IP</label>
+                <input id="ip" name="ip" type="text" placeholder="192.168.0.50">
+              </div>
+              <div class="form-group">
+                <label for="localizacao">Localização</label>
+                <input id="localizacao" name="localizacao" type="text">
+              </div>
+              <button type="submit" class="btn primary">Adicionar câmera</button>
+            </form>
+          <% } %>
+        </div>
+
+        <% if (cameras.length === 0) { %>
+          <div class="empty-state">
+            <h3>Nenhuma câmera cadastrada ainda</h3>
+            <p>Use o formulário acima para adicionar a primeira.</p>
+          </div>
+        <% } else { %>
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Caixa</th>
+                  <th>Porta</th>
+                  <th>Número</th>
+                  <th>Descrição</th>
+                  <th>IP</th>
+                  <th>Localização</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% cameras.forEach((cam) => { %>
+                  <tr>
+                    <td><code><%= cam.caixa_codigo %></code></td>
+                    <td><span class="badge-count"><%= String(cam.porta).padStart(2, '0') %></span></td>
+                    <td><%= cam.numero || '—' %></td>
+                    <td><%= cam.nome || '—' %></td>
+                    <td><code><%= cam.ip || '—' %></code></td>
+                    <td><%= cam.localizacao || '—' %></td>
+                    <td style="display:flex;gap:8px;">
+                      <button type="button" class="btn secondary btn-editar-camera" data-id="<%= cam.id %>">Editar</button>
+                      <form method="post" action="/cameras/<%= cam.id %>/excluir" onsubmit="return confirm('Excluir esta câmera?');">
+                        <button type="submit" class="btn secondary" style="color:#9c3030;border-color:#e6b7b7;">Excluir</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-backdrop hidden" id="cameraModalBackdrop">
+    <div class="modal small">
+      <header class="modal-head">
+        <h2>Editar câmera</h2>
+        <button type="button" class="close-x" id="cameraModalFechar" aria-label="Fechar">&times;</button>
+      </header>
+
+      <div class="modal-body" style="padding:20px 24px;">
+        <div id="cameraModalErro" class="alert-error hidden" style="margin-bottom:14px;padding:12px;border-radius:8px;background:#fff0f0;color:#9c3030;border:1px solid #e6b7b7;font-size:13px;"></div>
+
+        <form id="cameraEditForm" class="novo-usuario-form" style="flex-direction:column;align-items:stretch;">
+          <input type="hidden" id="editId">
+          <div class="form-group">
+            <label for="editCaixaId">Caixa</label>
+            <select id="editCaixaId" required>
+              <% caixas.forEach((c) => { %>
+                <option value="<%= c.id %>"><%= c.codigo %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editPorta">Porta</label>
+            <input id="editPorta" type="number" min="1" required>
+          </div>
+          <div class="form-group">
+            <label for="editNumero">Número</label>
+            <input id="editNumero" type="text">
+          </div>
+          <div class="form-group">
+            <label for="editNome">Descrição</label>
+            <input id="editNome" type="text">
+          </div>
+          <div class="form-group">
+            <label for="editIp">IP</label>
+            <input id="editIp" type="text">
+          </div>
+          <div class="form-group">
+            <label for="editLocalizacao">Localização</label>
+            <input id="editLocalizacao" type="text">
+          </div>
+          <div class="form-group">
+            <label for="editObservacoes">Observações</label>
+            <input id="editObservacoes" type="text">
+          </div>
+          <button type="submit" class="btn primary" style="width:100%;justify-content:center;">Salvar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/cameras.js?v=<%= assetVersion %>"></script>
+</body>
+</html>
