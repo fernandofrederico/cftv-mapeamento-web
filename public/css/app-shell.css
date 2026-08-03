@@ -462,6 +462,11 @@ tbody tr:hover {
   min-height: 520px;
   overflow: auto;
   background: #dfe5eb;
+  cursor: grab;
+}
+
+.map-viewport.panning {
+  cursor: grabbing;
 }
 
 .map-empty {

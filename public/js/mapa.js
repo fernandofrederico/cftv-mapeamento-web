@@ -97,6 +97,68 @@
     }
   }
 
+  let panAtivo = false;
+  let panInicioX = 0;
+  let panInicioY = 0;
+  let panScrollInicioX = 0;
+  let panScrollInicioY = 0;
+
+  function iniciarPan(evento) {
+    if (evento.target.closest('.marker')) {
+      return;
+    }
+
+    const viewport = document.getElementById('mapViewport');
+
+    if (!viewport) {
+      return;
+    }
+
+    panAtivo = true;
+    panInicioX = evento.clientX;
+    panInicioY = evento.clientY;
+    panScrollInicioX = viewport.scrollLeft;
+    panScrollInicioY = viewport.scrollTop;
+
+    viewport.classList.add('panning');
+    viewport.setPointerCapture(evento.pointerId);
+  }
+
+  function moverPan(evento) {
+    if (!panAtivo) {
+      return;
+    }
+
+    const viewport = document.getElementById('mapViewport');
+    viewport.scrollLeft = panScrollInicioX - (evento.clientX - panInicioX);
+    viewport.scrollTop = panScrollInicioY - (evento.clientY - panInicioY);
+  }
+
+  function finalizarPan() {
+    if (!panAtivo) {
+      return;
+    }
+
+    panAtivo = false;
+    const viewport = document.getElementById('mapViewport');
+    if (viewport) {
+      viewport.classList.remove('panning');
+    }
+  }
+
+  function inicializarPan() {
+    const viewport = document.getElementById('mapViewport');
+
+    if (!viewport) {
+      return;
+    }
+
+    viewport.addEventListener('pointerdown', iniciarPan);
+    viewport.addEventListener('pointermove', moverPan);
+    viewport.addEventListener('pointerup', finalizarPan);
+    viewport.addEventListener('pointercancel', finalizarPan);
+  }
+
   function limitesDoPalco() {
     const palco = document.getElementById('mapStage');
     return palco.getBoundingClientRect();
@@ -422,6 +484,7 @@
 
   if (markersLayer) {
     inicializarZoom();
+    inicializarPan();
     markersLayer.addEventListener('pointerdown', iniciarArraste);
     markersLayer.addEventListener('pointermove', moverArraste);
     markersLayer.addEventListener('pointerup', finalizarArraste);
