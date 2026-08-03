@@ -497,6 +497,8 @@ tbody tr:hover {
   max-width: none;
   user-select: none;
   pointer-events: none;
+  -webkit-user-drag: none;
+  user-drag: none;
 }
 
 .markers-layer {

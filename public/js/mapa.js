@@ -81,6 +81,8 @@
     }
 
     if (viewport) {
+      viewport.addEventListener('dragstart', (evento) => evento.preventDefault());
+
       viewport.addEventListener(
         'wheel',
         (evento) => {
