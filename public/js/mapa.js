@@ -13,6 +13,90 @@
   let houveArraste = false;
   let camerasDaCaixaAtual = [];
 
+  const ZOOM_MIN = 0.25;
+  const ZOOM_MAX = 3;
+  const ZOOM_PASSO = 0.15;
+
+  let zoomAtual = 1;
+  let imagemLargura = 0;
+  let imagemAltura = 0;
+
+  function aplicarZoom(novoZoom) {
+    zoomAtual = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, novoZoom));
+
+    const sizer = document.getElementById('mapSizer');
+    const stage = document.getElementById('mapStage');
+    const label = document.getElementById('zoomLabel');
+
+    if (!sizer || !stage || !imagemLargura) {
+      return;
+    }
+
+    stage.style.width = `${imagemLargura}px`;
+    stage.style.height = `${imagemAltura}px`;
+    stage.style.transform = `scale(${zoomAtual})`;
+
+    sizer.style.width = `${imagemLargura * zoomAtual}px`;
+    sizer.style.height = `${imagemAltura * zoomAtual}px`;
+
+    if (label) {
+      label.textContent = `${Math.round(zoomAtual * 100)}%`;
+    }
+  }
+
+  function inicializarZoom() {
+    const imagem = document.getElementById('mapImage');
+
+    if (!imagem) {
+      return;
+    }
+
+    const configurar = () => {
+      imagemLargura = imagem.naturalWidth;
+      imagemAltura = imagem.naturalHeight;
+      aplicarZoom(1);
+    };
+
+    if (imagem.complete && imagem.naturalWidth) {
+      configurar();
+    } else {
+      imagem.addEventListener('load', configurar);
+    }
+
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+    const zoomResetBtn = document.getElementById('zoomResetBtn');
+    const viewport = document.getElementById('mapViewport');
+
+    if (zoomInBtn) {
+      zoomInBtn.addEventListener('click', () => aplicarZoom(zoomAtual + ZOOM_PASSO));
+    }
+
+    if (zoomOutBtn) {
+      zoomOutBtn.addEventListener('click', () => aplicarZoom(zoomAtual - ZOOM_PASSO));
+    }
+
+    if (zoomResetBtn) {
+      zoomResetBtn.addEventListener('click', () => aplicarZoom(1));
+    }
+
+    if (viewport) {
+      viewport.addEventListener(
+        'wheel',
+        (evento) => {
+          if (!evento.ctrlKey) {
+            return;
+          }
+
+          evento.preventDefault();
+          const direcao = evento.deltaY < 0 ? 1 : -1;
+          aplicarZoom(zoomAtual + direcao * ZOOM_PASSO);
+        },
+        { passive: false }
+      );
+    }
+  }
+
   function limitesDoPalco() {
     const palco = document.getElementById('mapStage');
     return palco.getBoundingClientRect();
@@ -245,8 +329,8 @@
     marcadorAtivo.setPointerCapture(evento.pointerId);
 
     const retanguloPalco = limitesDoPalco();
-    const x = evento.clientX - retanguloPalco.left;
-    const y = evento.clientY - retanguloPalco.top;
+    const x = (evento.clientX - retanguloPalco.left) / zoomAtual;
+    const y = (evento.clientY - retanguloPalco.top) / zoomAtual;
 
     offsetX = x - parseFloat(marcadorAtivo.style.left || '0');
     offsetY = y - parseFloat(marcadorAtivo.style.top || '0');
@@ -277,8 +361,8 @@
     }
 
     const retanguloPalco = limitesDoPalco();
-    const x = evento.clientX - retanguloPalco.left;
-    const y = evento.clientY - retanguloPalco.top;
+    const x = (evento.clientX - retanguloPalco.left) / zoomAtual;
+    const y = (evento.clientY - retanguloPalco.top) / zoomAtual;
 
     const novoX = Math.max(0, x - offsetX);
     const novoY = Math.max(0, y - offsetY);
@@ -337,6 +421,7 @@
   }
 
   if (markersLayer) {
+    inicializarZoom();
     markersLayer.addEventListener('pointerdown', iniciarArraste);
     markersLayer.addEventListener('pointermove', moverArraste);
     markersLayer.addEventListener('pointerup', finalizarArraste);

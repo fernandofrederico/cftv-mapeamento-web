@@ -62,32 +62,40 @@
               </div>
             </div>
           <% } else { %>
-            <div class="map-stage" id="mapStage">
-              <img
-                id="mapImage"
-                class="map-image"
-                src="<%= imagemMapa %>"
-                alt="Mapa"
-              >
-              <div class="markers-layer" id="markersLayer">
-                <% caixas.forEach((caixa) => { %>
-                  <div
-                    class="marker"
-                    data-id="<%= caixa.id %>"
-                    data-codigo="<%= caixa.codigo %>"
-                    style="left:<%= caixa.pos_x %>px; top:<%= caixa.pos_y %>px;"
-                  >
-                    <span class="marker-icon" aria-hidden="true">▦</span>
-                    <span class="marker-label"><%= caixa.codigo %></span>
-                  </div>
-                <% }); %>
+            <div class="map-sizer" id="mapSizer">
+              <div class="map-stage" id="mapStage">
+                <img
+                  id="mapImage"
+                  class="map-image"
+                  src="<%= imagemMapa %>"
+                  alt="Mapa"
+                >
+                <div class="markers-layer" id="markersLayer">
+                  <% caixas.forEach((caixa) => { %>
+                    <div
+                      class="marker"
+                      data-id="<%= caixa.id %>"
+                      data-codigo="<%= caixa.codigo %>"
+                      style="left:<%= caixa.pos_x %>px; top:<%= caixa.pos_y %>px;"
+                    >
+                      <span class="marker-icon" aria-hidden="true">▦</span>
+                      <span class="marker-label"><%= caixa.codigo %></span>
+                    </div>
+                  <% }); %>
+                </div>
               </div>
+            </div>
+
+            <div class="zoom-controls" id="zoomControls">
+              <button type="button" class="zoom-btn" id="zoomOutBtn" aria-label="Diminuir zoom">−</button>
+              <button type="button" class="zoom-btn zoom-btn-reset" id="zoomResetBtn"><span id="zoomLabel">100%</span></button>
+              <button type="button" class="zoom-btn" id="zoomInBtn" aria-label="Aumentar zoom">＋</button>
             </div>
           <% } %>
         </div>
 
         <% if (imagemMapa && caixas.length > 0) { %>
-          <p class="map-help">Arraste um marcador para reposicionar • a posição é salva automaticamente</p>
+          <p class="map-help">Arraste um marcador para reposicionar • Ctrl + rolagem (ou os botões) para zoom</p>
         <% } %>
       </div>
     </main>
