@@ -107,6 +107,7 @@
     const id = marcador.dataset.id;
     const codigo = marcador.dataset.codigo || 'Caixa';
 
+    modalBackdrop.dataset.caixaId = id;
     document.getElementById('caixaModalTitulo').textContent = codigo;
     ativarAba('geral');
     esconderDetalheCamera();
@@ -153,6 +154,73 @@
     } catch (erro) {
       document.getElementById('caixaModalDescricao').textContent =
         'Não foi possível carregar os detalhes desta caixa.';
+    }
+  }
+
+  async function trocarFoto(id, tipo, arquivo, elementoPreview) {
+    const formData = new FormData();
+    formData.append('foto', arquivo);
+
+    const textoOriginal = elementoPreview.innerHTML;
+    elementoPreview.textContent = 'Enviando…';
+
+    try {
+      const resposta = await fetch(`/caixas/${id}/foto/${tipo}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok || !dados.ok) {
+        throw new Error(dados.erro || 'Falha ao enviar foto.');
+      }
+
+      montarPreviewFoto(
+        elementoPreview,
+        dados.url,
+        tipo === 'painel' ? 'Foto do painel' : 'Foto do switch'
+      );
+    } catch (erro) {
+      elementoPreview.innerHTML = textoOriginal;
+      window.alert('Não foi possível enviar a foto. Tente novamente.');
+    }
+  }
+
+  function configurarTrocaDeFoto() {
+    const inputPainel = document.getElementById('caixaModalTrocarPainel');
+    const inputSwitch = document.getElementById('caixaModalTrocarSwitch');
+
+    if (inputPainel) {
+      inputPainel.addEventListener('change', () => {
+        const arquivo = inputPainel.files[0];
+        const id = document.getElementById('caixaModalBackdrop').dataset.caixaId;
+        if (arquivo && id) {
+          trocarFoto(
+            id,
+            'painel',
+            arquivo,
+            document.getElementById('caixaModalFotoPainel')
+          );
+        }
+        inputPainel.value = '';
+      });
+    }
+
+    if (inputSwitch) {
+      inputSwitch.addEventListener('change', () => {
+        const arquivo = inputSwitch.files[0];
+        const id = document.getElementById('caixaModalBackdrop').dataset.caixaId;
+        if (arquivo && id) {
+          trocarFoto(
+            id,
+            'switch',
+            arquivo,
+            document.getElementById('caixaModalFotoSwitch')
+          );
+        }
+        inputSwitch.value = '';
+      });
     }
   }
 
@@ -280,6 +348,8 @@
   });
 
   if (modalBackdrop) {
+    configurarTrocaDeFoto();
+
     document
       .getElementById('caixaModalFechar')
       .addEventListener('click', fecharModal);

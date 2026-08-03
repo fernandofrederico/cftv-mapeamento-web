@@ -813,6 +813,26 @@ tbody tr:hover {
   justify-content: flex-end;
 }
 
+.file-btn {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.file-btn input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.troca-foto-btn {
+  margin-top: 10px;
+  width: 100%;
+  justify-content: center;
+  font-size: 13px;
+}
+
 @media (max-width: 700px) {
   .images-grid,
   .caixa-modal-details {

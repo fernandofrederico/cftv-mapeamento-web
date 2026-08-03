@@ -188,7 +188,9 @@ router.get(
       const [caixas] = await pool.query(
         `SELECT id, codigo, descricao, localizacao,
                 switch_nome, switch_ip, switch_portas,
-                foto_painel, foto_switch
+                foto_painel, foto_switch,
+                (foto_painel_dados IS NOT NULL) AS tem_foto_painel_banco,
+                (foto_switch_dados IS NOT NULL) AS tem_foto_switch_banco
          FROM caixas
          WHERE id = ?`,
         [id]
@@ -212,6 +214,8 @@ router.get(
         Boolean(caminho) &&
         (caminho.startsWith('/') || caminho.startsWith('http'));
 
+      const versao = Date.now();
+
       return res.json({
         ok: true,
         caixa: {
@@ -222,12 +226,16 @@ router.get(
           switch_nome: caixa.switch_nome,
           switch_ip: caixa.switch_ip,
           switch_portas: caixa.switch_portas,
-          foto_painel_url: caminhoWebValido(caixa.foto_painel)
-            ? caixa.foto_painel
-            : null,
-          foto_switch_url: caminhoWebValido(caixa.foto_switch)
-            ? caixa.foto_switch
-            : null,
+          foto_painel_url: caixa.tem_foto_painel_banco
+            ? `/caixas/${caixa.id}/foto/painel?v=${versao}`
+            : caminhoWebValido(caixa.foto_painel)
+              ? caixa.foto_painel
+              : null,
+          foto_switch_url: caixa.tem_foto_switch_banco
+            ? `/caixas/${caixa.id}/foto/switch?v=${versao}`
+            : caminhoWebValido(caixa.foto_switch)
+              ? caixa.foto_switch
+              : null,
         },
         cameras,
       });
