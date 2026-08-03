@@ -10,6 +10,8 @@ const {
   getRuntimeConfig,
 } = require('../config/runtime-config');
 
+const { getDatabasePool } = require('../config/database');
+
 const router = express.Router();
 
 router.get('/login', requireGuest, (req, res) => {
@@ -46,41 +48,75 @@ router.post('/login', requireGuest, async (req, res, next) => {
 
     let senhaCorreta = false;
 
-    if (senha && hashValido) {
+    if (senha && emailCorreto && hashValido) {
       senhaCorreta = await bcrypt.compare(senha, senhaHash);
     }
 
-    if (!emailCorreto || !senhaCorreta) {
-      return res.status(401).render('login', {
-        titulo: 'Entrar',
-        erro: 'E-mail ou senha inválidos.',
-      });
-    }
-
-    req.session.regenerate((erro) => {
-      if (erro) {
-        return next(erro);
-      }
-
-      req.session.usuario = {
+    if (emailCorreto && senhaCorreta) {
+      return autenticarSessao(req, res, next, {
         id: 1,
         nome: 'Administrador',
         email: emailAdministrador,
         perfil: 'administrador',
-      };
-
-      return req.session.save((erroSalvar) => {
-        if (erroSalvar) {
-          return next(erroSalvar);
-        }
-
-        return res.redirect('/dashboard');
       });
+    }
+
+    // Não é o admin de ambiente — tenta na tabela de usuários.
+    if (email && senha) {
+      const pool = getDatabasePool();
+
+      const [linhas] = await pool.query(
+        `SELECT id, nome, email, senha_hash, perfil
+         FROM usuarios
+         WHERE email = ? AND ativo = 1`,
+        [email]
+      );
+
+      const usuario = linhas[0];
+
+      if (usuario) {
+        const senhaValida = await bcrypt.compare(
+          senha,
+          usuario.senha_hash
+        );
+
+        if (senhaValida) {
+          return autenticarSessao(req, res, next, {
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email,
+            perfil: usuario.perfil,
+          });
+        }
+      }
+    }
+
+    return res.status(401).render('login', {
+      titulo: 'Entrar',
+      erro: 'E-mail ou senha inválidos.',
     });
   } catch (erro) {
     return next(erro);
   }
 });
+
+function autenticarSessao(req, res, next, dadosUsuario) {
+  req.session.regenerate((erro) => {
+    if (erro) {
+      return next(erro);
+    }
+
+    req.session.usuario = dadosUsuario;
+
+    return req.session.save((erroSalvar) => {
+      if (erroSalvar) {
+        return next(erroSalvar);
+      }
+
+      return res.redirect('/dashboard');
+    });
+  });
+}
 
 router.post('/logout', requireAuth, (req, res, next) => {
   req.session.destroy((erro) => {

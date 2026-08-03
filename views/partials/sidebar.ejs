@@ -31,6 +31,12 @@
     <span class="badge-soon">em breve</span>
   </span>
 
+  <% if (usuario.perfil === 'administrador') { %>
+    <a href="/usuarios" class="nav-btn <%= active === 'usuarios' ? 'active' : '' %>">
+      <span aria-hidden="true">☺</span> Usuários
+    </a>
+  <% } %>
+
   <div class="sidebar-spacer"></div>
 
   <div class="current-user">

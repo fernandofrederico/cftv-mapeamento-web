@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const caixasRoutes = require('./routes/caixas');
 const mapaRoutes = require('./routes/mapa');
+const usuariosRoutes = require('./routes/usuarios');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -78,6 +79,7 @@ app.use(authRoutes);
 app.use(dashboardRoutes);
 app.use(caixasRoutes);
 app.use(mapaRoutes);
+app.use(usuariosRoutes);
 
 app.use((req, res) => {
   res.status(404).send('Página não encontrada.');

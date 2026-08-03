@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | CFTV Mapeamento</title>
+  <link rel="stylesheet" href="/css/app-shell.css?v=<%= assetVersion %>">
+</head>
+<body>
+  <div class="app-shell">
+    <%- include('partials/sidebar', { active: 'usuarios', usuario: usuario }) %>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Administração</p>
+          <h1>Usuários</h1>
+        </div>
+      </header>
+
+      <div class="content">
+        <p>Cadastre quem pode acessar o sistema e defina o perfil de cada um.</p>
+
+        <% if (erro) { %>
+          <div class="alert-error" style="margin:14px 0;padding:12px;border-radius:8px;background:#fff0f0;color:#9c3030;border:1px solid #e6b7b7;font-size:13px;">
+            <%= erro %>
+          </div>
+        <% } %>
+
+        <div class="table-card" style="padding:18px;margin-bottom:22px;">
+          <h3 style="margin:0 0 14px;">Novo usuário</h3>
+          <form method="post" action="/usuarios" class="novo-usuario-form">
+            <div class="form-group">
+              <label for="nome">Nome</label>
+              <input id="nome" name="nome" type="text" required>
+            </div>
+            <div class="form-group">
+              <label for="email">E-mail</label>
+              <input id="email" name="email" type="email" required>
+            </div>
+            <div class="form-group">
+              <label for="senha">Senha</label>
+              <input id="senha" name="senha" type="password" minlength="6" required>
+            </div>
+            <div class="form-group">
+              <label for="perfil">Perfil</label>
+              <select id="perfil" name="perfil">
+                <option value="usuario">Usuário</option>
+                <option value="administrador">Administrador</option>
+              </select>
+            </div>
+            <button type="submit" class="btn primary">Adicionar usuário</button>
+          </form>
+        </div>
+
+        <% if (usuarios.length === 0) { %>
+          <div class="empty-state">
+            <h3>Nenhum usuário cadastrado ainda</h3>
+            <p>Use o formulário acima para adicionar o primeiro.</p>
+          </div>
+        <% } else { %>
+          <div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Perfil</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% usuarios.forEach((u) => { %>
+                  <tr>
+                    <td><%= u.nome %></td>
+                    <td><%= u.email %></td>
+                    <td>
+                      <form method="post" action="/usuarios/<%= u.id %>/perfil" class="linha-form">
+                        <select name="perfil" onchange="this.form.submit()">
+                          <option value="usuario" <%= u.perfil === 'usuario' ? 'selected' : '' %>>Usuário</option>
+                          <option value="administrador" <%= u.perfil === 'administrador' ? 'selected' : '' %>>Administrador</option>
+                        </select>
+                      </form>
+                    </td>
+                    <td>
+                      <form method="post" action="/usuarios/<%= u.id %>/ativo" class="linha-form">
+                        <input type="hidden" name="ativo" value="<%= u.ativo ? '0' : '1' %>">
+                        <button type="submit" class="foto-status <%= u.ativo ? 'com-foto' : 'sem-foto' %>" style="border:0;cursor:pointer;">
+                          <%= u.ativo ? 'Ativo' : 'Inativo' %>
+                        </button>
+                      </form>
+                    </td>
+                    <td>
+                      <form method="post" action="/usuarios/<%= u.id %>/excluir" onsubmit="return confirm('Remover este usuário?');">
+                        <button type="submit" class="btn secondary" style="color:#9c3030;border-color:#e6b7b7;">Excluir</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
