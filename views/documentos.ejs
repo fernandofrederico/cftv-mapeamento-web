@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> | CFTV Mapeamento</title>
+  <link rel="stylesheet" href="/css/app-shell.css?v=<%= assetVersion %>">
+</head>
+<body>
+  <div class="app-shell">
+    <%- include('partials/sidebar', { active: 'documentos', usuario: usuario }) %>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Infraestrutura de CFTV</p>
+          <h1>Documentos</h1>
+        </div>
+      </header>
+
+      <div class="content">
+        <p>Gere um relatório completo do projeto em Word, pronto para enviar ao cliente ou arquivar.</p>
+
+        <% if (erro) { %>
+          <div class="alert-error" style="margin:14px 0;padding:12px;border-radius:8px;background:#fff0f0;color:#9c3030;border:1px solid #e6b7b7;font-size:13px;">
+            <%= erro %>
+          </div>
+        <% } %>
+
+        <div class="table-card" style="padding:24px;max-width:560px;">
+          <h3 style="margin:0 0 8px;">Relatório completo (Word)</h3>
+          <p style="color:#617282;font-size:13px;margin:0 0 16px;">
+            Inclui: mapa geral, todas as caixas técnicas com fotos, tabela completa
+            de câmeras por porta, e os equipamentos e ligações do diagrama de rede.
+          </p>
+
+          <div class="checks" style="line-height:2;color:#29485f;margin-bottom:18px;font-size:13px;">
+            ✓ Mapa principal<br>
+            ✓ Caixas técnicas e fotos<br>
+            ✓ Câmeras por porta<br>
+            ✓ Equipamentos do diagrama<br>
+            ✓ Ligações do diagrama
+          </div>
+
+          <button type="button" id="gerarRelatorioBtn" class="btn primary" style="width:100%;justify-content:center;">
+            Gerar relatório Word
+          </button>
+
+          <div id="relatorioStatus" style="margin-top:12px;font-size:13px;color:#617282;"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/documentos.js?v=<%= assetVersion %>"></script>
+</body>
+</html>

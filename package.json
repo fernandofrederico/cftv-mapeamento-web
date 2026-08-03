@@ -28,7 +28,9 @@
     "express-mysql-session": "^3.0.3",
     "express-rate-limit": "^8.6.1",
     "express-session": "^1.19.0",
+    "docx": "^9.7.1",
     "helmet": "^8.3.0",
+    "image-size": "^2.0.2",
     "multer": "^2.0.0",
     "mysql2": "^3.23.2"
   },

@@ -14,6 +14,7 @@ const mapaRoutes = require('./routes/mapa');
 const usuariosRoutes = require('./routes/usuarios');
 const diagramaRoutes = require('./routes/diagrama');
 const camerasRoutes = require('./routes/cameras');
+const documentosRoutes = require('./routes/documentos');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -84,6 +85,7 @@ app.use(mapaRoutes);
 app.use(usuariosRoutes);
 app.use(diagramaRoutes);
 app.use(camerasRoutes);
+app.use(documentosRoutes);
 
 app.use((req, res) => {
   res.status(404).send('Página não encontrada.');

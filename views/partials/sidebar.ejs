@@ -24,10 +24,9 @@
     <span aria-hidden="true">◇</span> Diagrama
   </a>
 
-  <span class="nav-btn disabled">
+  <a href="/documentos" class="nav-btn <%= active === 'documentos' ? 'active' : '' %>">
     <span aria-hidden="true">▤</span> Documentos
-    <span class="badge-soon">em breve</span>
-  </span>
+  </a>
 
   <% if (usuario.perfil === 'administrador') { %>
     <a href="/usuarios" class="nav-btn <%= active === 'usuarios' ? 'active' : '' %>">
