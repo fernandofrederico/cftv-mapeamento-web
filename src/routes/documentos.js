@@ -99,15 +99,20 @@ function criarTabela(colunas, linhas, larguras) {
 function tituloSecao(texto) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_1,
-    spacing: { before: 320, after: 160 },
+    pageBreakBefore: true,
+    spacing: { before: 0, after: 200 },
+    border: {
+      bottom: { style: BorderStyle.SINGLE, size: 6, color: COR_PRIMARIA, space: 6 },
+    },
     children: [new TextRun({ text: texto, color: COR_TITULO, bold: true })],
   });
 }
 
-function subtitulo(texto) {
+function subtitulo(texto, { novaPagina = false } = {}) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
-    spacing: { before: 200, after: 100 },
+    pageBreakBefore: novaPagina,
+    spacing: { before: 260, after: 100 },
     children: [new TextRun({ text: texto, color: COR_PRIMARIA, bold: true, size: 22 })],
   });
 }
@@ -175,6 +180,54 @@ function imagemParagrafo(buffer, larguraMaxPx, alturaMaxPx) {
         data: buffer,
         transformation: { width, height },
         type: tipo,
+      }),
+    ],
+  });
+}
+
+const SEM_BORDA = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+const SEM_BORDAS_CELULA = {
+  top: SEM_BORDA,
+  bottom: SEM_BORDA,
+  left: SEM_BORDA,
+  right: SEM_BORDA,
+};
+
+function celulaFoto(legenda, buffer) {
+  const conteudo = [
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 80 },
+      children: [new TextRun({ text: legenda, italics: true, size: 18, color: '4A5C6A' })],
+    }),
+  ];
+
+  conteudo.push(
+    buffer
+      ? imagemParagrafo(buffer, 420, 300)
+      : paragrafoSimples('Sem foto cadastrada', { italics: true, size: 18, color: '9C3030' })
+  );
+
+  return new TableCell({
+    width: { size: 50, type: WidthType.PERCENTAGE },
+    borders: SEM_BORDAS_CELULA,
+    children: conteudo,
+  });
+}
+
+function linhaFotos(fotoPainel, fotoSwitch) {
+  return new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: {
+      top: SEM_BORDA, bottom: SEM_BORDA, left: SEM_BORDA, right: SEM_BORDA,
+      insideHorizontal: SEM_BORDA, insideVertical: SEM_BORDA,
+    },
+    rows: [
+      new TableRow({
+        children: [
+          celulaFoto('Foto do painel', fotoPainel),
+          celulaFoto('Foto do switch', fotoSwitch),
+        ],
       }),
     ],
   });
@@ -251,36 +304,107 @@ router.post('/documentos/relatorio', requireAuth, async (req, res, next) => {
     };
 
     const conteudo = [];
+    let numeroSecao = 0;
+    const proximoNumero = () => {
+      numeroSecao += 1;
+      return numeroSecao;
+    };
 
-    // Capa
+    // ---------- Capa ----------
     conteudo.push(
+      new Paragraph({ spacing: { before: 1600 }, children: [] }),
+
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { before: 400, after: 100 },
         children: [
           new TextRun({
-            text: 'Relatório de Infraestrutura de CFTV',
+            text: 'RELATÓRIO TÉCNICO',
             bold: true,
-            size: 44,
+            size: 20,
+            color: COR_PRIMARIA,
+            characterSpacing: 40,
+          }),
+        ],
+      }),
+
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 160, after: 0 },
+        children: [
+          new TextRun({
+            text: 'Infraestrutura de CFTV',
+            bold: true,
+            size: 60,
             color: COR_TITULO,
+          }),
+        ],
+      }),
+
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 220, after: 0 },
+        children: [
+          new TextRun({
+            text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+            color: COR_PRIMARIA,
+            size: 18,
+          }),
+        ],
+      }),
+
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { before: 220, after: 0 },
+        children: [
+          new TextRun({
+            text: 'Mapeamento de caixas técnicas, câmeras, switches e diagrama de rede',
+            size: 24,
+            color: '5A6C78',
+            italics: true,
+          }),
+        ],
+      }),
+
+      new Paragraph({ spacing: { before: 1000 }, children: [] }),
+
+      criarTabela(
+        ['Indicador', 'Quantidade'],
+        [
+          ['Caixas técnicas mapeadas', String(caixas.length)],
+          ['Câmeras cadastradas', String(cameras.length)],
+          ['Equipamentos no diagrama', String(nodes.length)],
+          ['Ligações no diagrama', String(links.length)],
+        ],
+        [70, 30]
+      ),
+
+      new Paragraph({ spacing: { before: 800 }, children: [] }),
+
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            text: `Gerado em ${new Date().toLocaleString('pt-BR')}`,
+            size: 20,
+            color: '5A6C78',
           }),
         ],
       }),
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        spacing: { after: 400 },
+        spacing: { after: 200 },
         children: [
           new TextRun({
-            text: `Gerado em ${new Date().toLocaleString('pt-BR')} por ${req.session.usuario.nome}`,
-            size: 22,
+            text: `por ${req.session.usuario.nome}`,
+            size: 20,
             color: '5A6C78',
           }),
         ],
       })
     );
 
-    // Resumo
-    conteudo.push(tituloSecao('1. Resumo geral'));
+    // ---------- Resumo ----------
+    conteudo.push(tituloSecao(`${proximoNumero()}. Resumo geral`));
     conteudo.push(
       criarTabela(
         ['Indicador', 'Quantidade'],
@@ -294,17 +418,21 @@ router.post('/documentos/relatorio', requireAuth, async (req, res, next) => {
       )
     );
 
-    // Mapa
+    // ---------- Mapa ----------
     if (imagemMapa) {
-      conteudo.push(tituloSecao('2. Mapa geral'));
+      conteudo.push(tituloSecao(`${proximoNumero()}. Mapa geral`));
       conteudo.push(imagemParagrafo(imagemMapa, 900, 560));
     }
 
-    // Caixas técnicas
-    conteudo.push(tituloSecao(`${imagemMapa ? '3' : '2'}. Caixas técnicas`));
+    // ---------- Caixas técnicas ----------
+    conteudo.push(tituloSecao(`${proximoNumero()}. Caixas técnicas`));
 
-    caixas.forEach((caixa) => {
-      conteudo.push(subtitulo(`${caixa.codigo} — ${caixa.descricao || 'Caixa técnica'}`));
+    caixas.forEach((caixa, indice) => {
+      conteudo.push(
+        subtitulo(`${caixa.codigo} — ${caixa.descricao || 'Caixa técnica'}`, {
+          novaPagina: indice > 0,
+        })
+      );
       conteudo.push(
         criarTabela(
           ['Localização', 'Switch', 'IP do switch', 'Portas'],
@@ -323,29 +451,13 @@ router.post('/documentos/relatorio', requireAuth, async (req, res, next) => {
       const fotoSwitch =
         caixa.foto_switch_dados || lerFotoEstatica(caixa.foto_switch);
 
-      if (fotoPainel) {
-        conteudo.push(
-          new Paragraph({
-            spacing: { before: 120 },
-            children: [new TextRun({ text: 'Foto do painel', italics: true, size: 18 })],
-          })
-        );
-        conteudo.push(imagemParagrafo(fotoPainel, 380, 280));
-      }
-
-      if (fotoSwitch) {
-        conteudo.push(
-          new Paragraph({
-            spacing: { before: 120 },
-            children: [new TextRun({ text: 'Foto do switch', italics: true, size: 18 })],
-          })
-        );
-        conteudo.push(imagemParagrafo(fotoSwitch, 380, 280));
+      if (fotoPainel || fotoSwitch) {
+        conteudo.push(linhaFotos(fotoPainel, fotoSwitch));
       }
     });
 
-    // Câmeras
-    conteudo.push(tituloSecao(`${imagemMapa ? '4' : '3'}. Câmeras por porta`));
+    // ---------- Câmeras ----------
+    conteudo.push(tituloSecao(`${proximoNumero()}. Câmeras por porta`));
     conteudo.push(
       criarTabela(
         ['Caixa', 'Porta', 'Número', 'Descrição', 'IP', 'Localização', 'Observações'],
@@ -362,8 +474,8 @@ router.post('/documentos/relatorio', requireAuth, async (req, res, next) => {
       )
     );
 
-    // Diagrama
-    conteudo.push(tituloSecao(`${imagemMapa ? '5' : '4'}. Equipamentos do diagrama`));
+    // ---------- Diagrama ----------
+    conteudo.push(tituloSecao(`${proximoNumero()}. Equipamentos do diagrama`));
     if (nodes.length === 0) {
       conteudo.push(paragrafoSimples('Nenhum equipamento cadastrado no diagrama.'));
     } else {
@@ -380,7 +492,7 @@ router.post('/documentos/relatorio', requireAuth, async (req, res, next) => {
       );
     }
 
-    conteudo.push(tituloSecao(`${imagemMapa ? '6' : '5'}. Ligações do diagrama`));
+    conteudo.push(tituloSecao(`${proximoNumero()}. Ligações do diagrama`));
     if (links.length === 0) {
       conteudo.push(paragrafoSimples('Nenhuma ligação cadastrada no diagrama.'));
     } else {
