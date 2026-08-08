@@ -23,9 +23,10 @@ router.get('/login', requireGuest, (req, res) => {
 
 router.post('/login', requireGuest, async (req, res, next) => {
   try {
-    const email = String(req.body.email || '')
-      .trim()
-      .toLowerCase();
+    const identificador = String(
+      req.body.identificador || req.body.email || ''
+    ).trim();
+    const identificadorMinusculo = identificador.toLowerCase();
 
     const senha = String(req.body.senha || '');
 
@@ -38,21 +39,22 @@ router.post('/login', requireGuest, async (req, res, next) => {
     const runtimeConfig = getRuntimeConfig();
     const senhaHash = runtimeConfig.adminPasswordHash;
 
-    const emailCorreto =
-      Boolean(email) &&
+    const identificadorCorretoAdmin =
+      Boolean(identificadorMinusculo) &&
       Boolean(emailAdministrador) &&
-      email === emailAdministrador;
+      (identificadorMinusculo === emailAdministrador ||
+        identificadorMinusculo === 'administrador');
 
     const hashValido =
       /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/.test(senhaHash);
 
     let senhaCorreta = false;
 
-    if (senha && emailCorreto && hashValido) {
+    if (senha && identificadorCorretoAdmin && hashValido) {
       senhaCorreta = await bcrypt.compare(senha, senhaHash);
     }
 
-    if (emailCorreto && senhaCorreta) {
+    if (identificadorCorretoAdmin && senhaCorreta) {
       return autenticarSessao(req, res, next, {
         id: 1,
         nome: 'Administrador',
@@ -61,15 +63,16 @@ router.post('/login', requireGuest, async (req, res, next) => {
       });
     }
 
-    // Não é o admin de ambiente — tenta na tabela de usuários.
-    if (email && senha) {
+    // Não é o admin de ambiente — tenta na tabela de usuários, por e-mail ou nome.
+    if (identificadorMinusculo && senha) {
       const pool = getDatabasePool();
 
       const [linhas] = await pool.query(
         `SELECT id, nome, email, senha_hash, perfil
          FROM usuarios
-         WHERE email = ? AND ativo = 1`,
-        [email]
+         WHERE (LOWER(email) = ? OR LOWER(nome) = ?) AND ativo = 1
+         LIMIT 1`,
+        [identificadorMinusculo, identificadorMinusculo]
       );
 
       const usuario = linhas[0];
@@ -93,7 +96,7 @@ router.post('/login', requireGuest, async (req, res, next) => {
 
     return res.status(401).render('login', {
       titulo: 'Entrar',
-      erro: 'E-mail ou senha inválidos.',
+      erro: 'Nome/e-mail ou senha inválidos.',
     });
   } catch (erro) {
     return next(erro);
