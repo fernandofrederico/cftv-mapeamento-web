@@ -106,7 +106,7 @@
   let panScrollInicioY = 0;
 
   function iniciarPan(evento) {
-    if (evento.target.closest('.marker')) {
+    if (evento.target.closest('.marker') || evento.target.closest('.zoom-controls')) {
       return;
     }
 
