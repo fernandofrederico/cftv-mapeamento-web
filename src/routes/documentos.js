@@ -3,6 +3,8 @@ const path = require('path');
 
 const express = require('express');
 const { imageSize } = require('image-size');
+const { Jimp, loadFont, measureText } = require('jimp');
+const jimpFonts = require('jimp/fonts');
 const {
   Document,
   Packer,
@@ -247,6 +249,81 @@ function lerFotoEstatica(caminhoWeb) {
   }
 }
 
+async function desenharMarcadoresNoMapa(bufferMapa, caixas) {
+  const tipoSuportado = detectarTipoImagem(bufferMapa);
+
+  if (!tipoSuportado || caixas.length === 0) {
+    return bufferMapa;
+  }
+
+  try {
+    const mapa = await Jimp.read(bufferMapa);
+    const fonte = await loadFont(jimpFonts.SANS_16_BLACK);
+
+    const RAIO = 15;
+    const COR_MARCADOR = 0x2d78adff;
+    const COR_BORDA = 0xffffffff;
+    const COR_FUNDO_LABEL = 0xffffffe6;
+
+    caixas.forEach((caixa) => {
+      const x = Number(caixa.pos_x);
+      const y = Number(caixa.pos_y);
+
+      if (!Number.isFinite(x) || !Number.isFinite(y)) {
+        return;
+      }
+
+      const tamanho = RAIO * 2 + 6;
+      const marcador = new Jimp({ width: tamanho, height: tamanho, color: 0x00000000 });
+
+      for (let yy = 0; yy < tamanho; yy += 1) {
+        for (let xx = 0; xx < tamanho; xx += 1) {
+          const dx = xx - tamanho / 2;
+          const dy = yy - tamanho / 2;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist <= RAIO + 3) {
+            marcador.setPixelColor(COR_BORDA, xx, yy);
+          }
+          if (dist <= RAIO) {
+            marcador.setPixelColor(COR_MARCADOR, xx, yy);
+          }
+        }
+      }
+
+      mapa.composite(marcador, x - tamanho / 2, y - tamanho / 2);
+
+      const texto = String(caixa.codigo || '');
+      const larguraTexto = measureTextSeguro(fonte, texto);
+      const labelX = Math.round(x - larguraTexto / 2 - 5);
+      const labelY = Math.round(y + RAIO + 4);
+      const labelW = larguraTexto + 10;
+      const labelH = 20;
+
+      for (let yy = 0; yy < labelH; yy += 1) {
+        for (let xx = 0; xx < labelW; xx += 1) {
+          mapa.setPixelColor(COR_FUNDO_LABEL, labelX + xx, labelY + yy);
+        }
+      }
+
+      mapa.print({ font: fonte, x: labelX + 5, y: labelY + 1, text: texto });
+    });
+
+    const tipoSaida = tipoSuportado === 'jpg' ? 'image/jpeg' : `image/${tipoSuportado}`;
+    return await mapa.getBuffer(tipoSaida);
+  } catch {
+    return bufferMapa;
+  }
+}
+
+function measureTextSeguro(fonte, texto) {
+  try {
+    return measureText(fonte, texto);
+  } catch {
+    return texto.length * 9;
+  }
+}
+
 router.get('/documentos', requireAuth, (req, res) => {
   res.render('documentos', {
     titulo: 'Documentos',
@@ -261,7 +338,8 @@ router.post('/documentos/relatorio', requireAuth, async (req, res, next) => {
 
     const [caixas] = await pool.query(`
       SELECT id, codigo, descricao, localizacao, switch_nome, switch_ip, switch_portas,
-             foto_painel, foto_switch, foto_painel_dados, foto_switch_dados
+             foto_painel, foto_switch, foto_painel_dados, foto_switch_dados,
+             pos_x, pos_y
       FROM caixas
       ORDER BY codigo
     `);
@@ -421,7 +499,8 @@ router.post('/documentos/relatorio', requireAuth, async (req, res, next) => {
     // ---------- Mapa ----------
     if (imagemMapa) {
       conteudo.push(tituloSecao(`${proximoNumero()}. Mapa geral`));
-      conteudo.push(imagemParagrafo(imagemMapa, 900, 560));
+      const mapaComMarcadores = await desenharMarcadoresNoMapa(imagemMapa, caixas);
+      conteudo.push(imagemParagrafo(mapaComMarcadores, 900, 560));
     }
 
     // ---------- Caixas técnicas ----------
