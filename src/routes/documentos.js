@@ -249,6 +249,16 @@ function lerFotoEstatica(caminhoWeb) {
   }
 }
 
+function distanciaCaixaArredondada(dx, dy, metade, raio) {
+  const qx = Math.abs(dx) - (metade - raio);
+  const qy = Math.abs(dy) - (metade - raio);
+  return (
+    Math.sqrt(Math.max(qx, 0) ** 2 + Math.max(qy, 0) ** 2) +
+    Math.min(Math.max(qx, qy), 0) -
+    raio
+  );
+}
+
 async function desenharMarcadoresNoMapa(bufferMapa, caixas) {
   const tipoSuportado = detectarTipoImagem(bufferMapa);
 
@@ -260,10 +270,14 @@ async function desenharMarcadoresNoMapa(bufferMapa, caixas) {
     const mapa = await Jimp.read(bufferMapa);
     const fonte = await loadFont(jimpFonts.SANS_16_BLACK);
 
-    const RAIO = 15;
+    const TAMANHO_ICONE = 34; // mesmo tamanho do .marker-icon no mapa do site
+    const RAIO_CANTO = 9;
+    const BORDA = 2.5;
+    const METADE = TAMANHO_ICONE / 2;
     const COR_MARCADOR = 0x2d78adff;
     const COR_BORDA = 0xffffffff;
     const COR_FUNDO_LABEL = 0xffffffe6;
+    const COR_ICONE_INTERNO = 0xffffffff;
 
     caixas.forEach((caixa) => {
       const x = Number(caixa.pos_x);
@@ -273,30 +287,45 @@ async function desenharMarcadoresNoMapa(bufferMapa, caixas) {
         return;
       }
 
-      const tamanho = RAIO * 2 + 6;
-      const marcador = new Jimp({ width: tamanho, height: tamanho, color: 0x00000000 });
+      const marcador = new Jimp({
+        width: TAMANHO_ICONE,
+        height: TAMANHO_ICONE,
+        color: 0x00000000,
+      });
 
-      for (let yy = 0; yy < tamanho; yy += 1) {
-        for (let xx = 0; xx < tamanho; xx += 1) {
-          const dx = xx - tamanho / 2;
-          const dy = yy - tamanho / 2;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+      for (let yy = 0; yy < TAMANHO_ICONE; yy += 1) {
+        for (let xx = 0; xx < TAMANHO_ICONE; xx += 1) {
+          const dx = xx - METADE;
+          const dy = yy - METADE;
+          const d = distanciaCaixaArredondada(dx, dy, METADE, RAIO_CANTO);
 
-          if (dist <= RAIO + 3) {
-            marcador.setPixelColor(COR_BORDA, xx, yy);
-          }
-          if (dist <= RAIO) {
+          if (d <= 0) {
             marcador.setPixelColor(COR_MARCADOR, xx, yy);
+          }
+          if (d > 0 && d <= BORDA) {
+            marcador.setPixelColor(COR_BORDA, xx, yy);
           }
         }
       }
 
-      mapa.composite(marcador, x - tamanho / 2, y - tamanho / 2);
+      // ícone de grade (▦) no centro, imitando o marker-icon do mapa
+      const margem = 8;
+      const linha1 = Math.round(margem + (TAMANHO_ICONE - margem * 2) * 0.33);
+      const linha2 = Math.round(margem + (TAMANHO_ICONE - margem * 2) * 0.66);
+
+      for (let i = margem; i < TAMANHO_ICONE - margem; i += 1) {
+        marcador.setPixelColor(COR_ICONE_INTERNO, i, linha1);
+        marcador.setPixelColor(COR_ICONE_INTERNO, i, linha2);
+        marcador.setPixelColor(COR_ICONE_INTERNO, linha1, i);
+        marcador.setPixelColor(COR_ICONE_INTERNO, linha2, i);
+      }
+
+      mapa.composite(marcador, Math.round(x - METADE), Math.round(y - METADE));
 
       const texto = String(caixa.codigo || '');
       const larguraTexto = measureTextSeguro(fonte, texto);
       const labelX = Math.round(x - larguraTexto / 2 - 5);
-      const labelY = Math.round(y + RAIO + 4);
+      const labelY = Math.round(y + METADE + 4);
       const labelW = larguraTexto + 10;
       const labelH = 20;
 
