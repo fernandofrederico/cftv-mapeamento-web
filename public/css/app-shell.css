@@ -124,6 +124,22 @@ button {
   background: var(--azul-sidebar-hover);
 }
 
+.current-user-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.current-user-editar {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.sidebar .current-user:hover .current-user-editar {
+  opacity: 1;
+}
+
 .sidebar .current-user small {
   color: #afc1ce;
   word-break: break-all;

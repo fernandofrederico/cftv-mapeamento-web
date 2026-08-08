@@ -37,7 +37,10 @@
   <div class="sidebar-spacer"></div>
 
   <a href="/minha-conta" class="current-user <%= active === 'minha-conta' ? 'active' : '' %>">
-    <strong><%= usuario.nome %></strong>
+    <div class="current-user-linha">
+      <strong><%= usuario.nome %></strong>
+      <span class="current-user-editar" aria-hidden="true">✏️</span>
+    </div>
     <small><%= usuario.email %></small>
   </a>
 
