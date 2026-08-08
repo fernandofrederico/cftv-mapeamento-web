@@ -3,6 +3,7 @@
 
   const dadosScript = document.getElementById('diagramaDadosIniciais');
   const svg = document.getElementById('diagramSvg');
+  const SOMENTE_LEITURA = document.body.dataset.perfil !== 'administrador';
 
   if (!dadosScript || !svg) {
     return;
@@ -373,6 +374,11 @@
         }
 
         selecionar('node', n.id, false);
+
+        if (SOMENTE_LEITURA) {
+          return;
+        }
+
         const p = pontoSvg(evento);
         estado.arraste = { id: evento.pointerId, node: n, dx: p.x - n.pos_x, dy: p.y - n.pos_y };
         g.classList.add('dragging');
@@ -467,7 +473,7 @@
   });
 
   // --- Aplicar edição do node selecionado (fica pendente até salvar) ---
-  document.getElementById('applyNodeBtn').addEventListener('click', () => {
+  document.getElementById('applyNodeBtn')?.addEventListener('click', () => {
     const s = estado.selecionado;
     if (!s) return;
     const n = estado.nodes.find((x) => x.id === s.id);
@@ -481,7 +487,7 @@
   });
 
   // --- Aplicar edição da ligação selecionada (salva na hora) ---
-  document.getElementById('applyLinkBtn').addEventListener('click', async () => {
+  document.getElementById('applyLinkBtn')?.addEventListener('click', async () => {
     const s = estado.selecionado;
     if (!s) return;
     const l = estado.links.find((x) => x.id === s.id);
@@ -509,7 +515,7 @@
   });
 
   // --- Modo de criar ligação ---
-  document.getElementById('linkModeBtn').addEventListener('click', () => {
+  document.getElementById('linkModeBtn')?.addEventListener('click', () => {
     estado.modoLigacao = !estado.modoLigacao;
     estado.primeiroNode = null;
     document.getElementById('linkModeBtn').textContent = estado.modoLigacao
@@ -518,7 +524,7 @@
   });
 
   // --- Excluir selecionado ---
-  document.getElementById('deleteDiagramBtn').addEventListener('click', async () => {
+  document.getElementById('deleteDiagramBtn')?.addEventListener('click', async () => {
     const s = estado.selecionado;
     if (!s) return;
     if (!window.confirm('Excluir o item selecionado?')) return;
@@ -545,7 +551,7 @@
   });
 
   // --- Salvar diagrama (envia as posições/edições pendentes) ---
-  document.getElementById('saveDiagramBtn').addEventListener('click', async () => {
+  document.getElementById('saveDiagramBtn')?.addEventListener('click', async () => {
     const botao = document.getElementById('saveDiagramBtn');
     const textoOriginal = botao.textContent;
     botao.textContent = 'Salvando…';

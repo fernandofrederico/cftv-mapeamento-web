@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { requireAuth } = require('../middlewares/auth');
+const { requireAuth, requireAdmin } = require('../middlewares/auth');
 const { getDatabasePool } = require('../config/database');
 
 const router = express.Router();
@@ -32,7 +32,7 @@ router.get('/diagrama', requireAuth, async (req, res, next) => {
   }
 });
 
-router.post('/diagrama/nodes', requireAuth, async (req, res, next) => {
+router.post('/diagrama/nodes', requireAdmin, async (req, res, next) => {
   try {
     const nodeType = String(req.body.node_type || '').trim();
     const label = String(req.body.label || '').trim();
@@ -70,7 +70,7 @@ router.post('/diagrama/nodes', requireAuth, async (req, res, next) => {
   }
 });
 
-router.put('/diagrama/nodes/:id', requireAuth, async (req, res, next) => {
+router.put('/diagrama/nodes/:id', requireAdmin, async (req, res, next) => {
   try {
     const id = Number(req.params.id);
 
@@ -99,7 +99,7 @@ router.put('/diagrama/nodes/:id', requireAuth, async (req, res, next) => {
   }
 });
 
-router.delete('/diagrama/nodes/:id', requireAuth, async (req, res, next) => {
+router.delete('/diagrama/nodes/:id', requireAdmin, async (req, res, next) => {
   try {
     const id = Number(req.params.id);
 
@@ -116,7 +116,7 @@ router.delete('/diagrama/nodes/:id', requireAuth, async (req, res, next) => {
   }
 });
 
-router.post('/diagrama/links', requireAuth, async (req, res, next) => {
+router.post('/diagrama/links', requireAdmin, async (req, res, next) => {
   try {
     const startNodeId = Number(req.body.start_node_id);
     const endNodeId = Number(req.body.end_node_id);
@@ -160,7 +160,7 @@ router.post('/diagrama/links', requireAuth, async (req, res, next) => {
   }
 });
 
-router.put('/diagrama/links/:id', requireAuth, async (req, res, next) => {
+router.put('/diagrama/links/:id', requireAdmin, async (req, res, next) => {
   try {
     const id = Number(req.params.id);
 
@@ -187,7 +187,7 @@ router.put('/diagrama/links/:id', requireAuth, async (req, res, next) => {
   }
 });
 
-router.delete('/diagrama/links/:id', requireAuth, async (req, res, next) => {
+router.delete('/diagrama/links/:id', requireAdmin, async (req, res, next) => {
   try {
     const id = Number(req.params.id);
 

@@ -1,6 +1,7 @@
 (function () {
   const markersLayer = document.getElementById('markersLayer');
   const modalBackdrop = document.getElementById('caixaModalBackdrop');
+  const SOMENTE_LEITURA = document.body.dataset.perfil !== 'administrador';
 
   const LIMITE_CLIQUE_PX = 6;
 
@@ -406,7 +407,7 @@
   }
 
   function moverArraste(evento) {
-    if (!marcadorAtivo) {
+    if (!marcadorAtivo || SOMENTE_LEITURA) {
       return;
     }
 

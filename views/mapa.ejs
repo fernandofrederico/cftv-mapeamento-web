@@ -6,7 +6,7 @@
   <title><%= titulo %> | CFTV Mapeamento</title>
   <link rel="stylesheet" href="/css/app-shell.css?v=<%= assetVersion %>">
 </head>
-<body>
+<body data-perfil="<%= usuario.perfil %>">
   <div class="app-shell">
     <%- include('partials/sidebar', { active: 'mapa', usuario: usuario }) %>
 
@@ -23,28 +23,32 @@
           <p>
             <% if (caixas.length === 0) { %>
               Nenhuma caixa cadastrada ainda.
-            <% } else { %>
+            <% } else if (usuario.perfil === 'administrador') { %>
               Arraste os marcadores para reposicionar cada caixa no mapa.
+            <% } else { %>
+              Clique numa caixa para ver os detalhes.
             <% } %>
           </p>
 
-          <form
-            class="upload-form"
-            action="/mapa/imagem"
-            method="post"
-            enctype="multipart/form-data"
-          >
-            <label class="btn secondary" for="mapaArquivo">
-              <%= imagemMapa ? 'Trocar imagem do mapa' : 'Enviar imagem do mapa' %>
-            </label>
-            <input
-              id="mapaArquivo"
-              name="mapa"
-              type="file"
-              accept=".png,.jpg,.jpeg,.webp"
-              onchange="this.form.submit()"
+          <% if (usuario.perfil === 'administrador') { %>
+            <form
+              class="upload-form"
+              action="/mapa/imagem"
+              method="post"
+              enctype="multipart/form-data"
             >
-          </form>
+              <label class="btn secondary" for="mapaArquivo">
+                <%= imagemMapa ? 'Trocar imagem do mapa' : 'Enviar imagem do mapa' %>
+              </label>
+              <input
+                id="mapaArquivo"
+                name="mapa"
+                type="file"
+                accept=".png,.jpg,.jpeg,.webp"
+                onchange="this.form.submit()"
+              >
+            </form>
+          <% } %>
         </div>
 
         <% if (erroUpload) { %>
@@ -96,7 +100,11 @@
         </div>
 
         <% if (imagemMapa && caixas.length > 0) { %>
-          <p class="map-help">Clique e arraste o fundo para mover o mapa • arraste um marcador para reposicionar • Ctrl + rolagem para zoom</p>
+          <p class="map-help">
+            Clique e arraste o fundo para mover o mapa
+            <% if (usuario.perfil === 'administrador') { %> • arraste um marcador para reposicionar<% } %>
+            • Ctrl + rolagem para zoom
+          </p>
         <% } %>
       </div>
     </main>
@@ -138,18 +146,22 @@
           <div class="image-card">
             <h3>Foto interna da caixa/painel</h3>
             <div class="image-preview" id="caixaModalFotoPainel">Nenhuma imagem</div>
-            <label class="btn secondary file-btn troca-foto-btn">
-              Trocar foto
-              <input type="file" id="caixaModalTrocarPainel" accept=".png,.jpg,.jpeg,.webp">
-            </label>
+            <% if (usuario.perfil === 'administrador') { %>
+              <label class="btn secondary file-btn troca-foto-btn">
+                Trocar foto
+                <input type="file" id="caixaModalTrocarPainel" accept=".png,.jpg,.jpeg,.webp">
+              </label>
+            <% } %>
           </div>
           <div class="image-card">
             <h3>Foto frontal do switch PoE</h3>
             <div class="image-preview" id="caixaModalFotoSwitch">Nenhuma imagem</div>
-            <label class="btn secondary file-btn troca-foto-btn">
-              Trocar foto
-              <input type="file" id="caixaModalTrocarSwitch" accept=".png,.jpg,.jpeg,.webp">
-            </label>
+            <% if (usuario.perfil === 'administrador') { %>
+              <label class="btn secondary file-btn troca-foto-btn">
+                Trocar foto
+                <input type="file" id="caixaModalTrocarSwitch" accept=".png,.jpg,.jpeg,.webp">
+              </label>
+            <% } %>
           </div>
         </div>
       </div>

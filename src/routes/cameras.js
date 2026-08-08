@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { requireAuth } = require('../middlewares/auth');
+const { requireAuth, requireAdmin } = require('../middlewares/auth');
 const { getDatabasePool } = require('../config/database');
 
 const router = express.Router();
@@ -48,7 +48,7 @@ router.get('/cameras', requireAuth, async (req, res, next) => {
   }
 });
 
-router.post('/cameras', requireAuth, async (req, res, next) => {
+router.post('/cameras', requireAdmin, async (req, res, next) => {
   try {
     const caixaId = Number(req.body.caixa_id);
     const porta = Number(req.body.porta);
@@ -137,7 +137,7 @@ router.get('/cameras/:id', requireAuth, async (req, res, next) => {
   }
 });
 
-router.put('/cameras/:id', requireAuth, async (req, res, next) => {
+router.put('/cameras/:id', requireAdmin, async (req, res, next) => {
   try {
     const id = Number(req.params.id);
 
@@ -185,7 +185,7 @@ router.put('/cameras/:id', requireAuth, async (req, res, next) => {
   }
 });
 
-router.post('/cameras/:id/excluir', requireAuth, async (req, res, next) => {
+router.post('/cameras/:id/excluir', requireAdmin, async (req, res, next) => {
   try {
     const id = Number(req.params.id);
 

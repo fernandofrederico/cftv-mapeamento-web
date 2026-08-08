@@ -19,7 +19,13 @@
       </header>
 
       <div class="content">
-        <p>Cadastre, edite e consulte todas as câmeras do projeto, organizadas por caixa e porta.</p>
+        <p>
+          <% if (usuario.perfil === 'administrador') { %>
+            Cadastre, edite e consulte todas as câmeras do projeto, organizadas por caixa e porta.
+          <% } else { %>
+            Consulte todas as câmeras do projeto, organizadas por caixa e porta.
+          <% } %>
+        </p>
 
         <% if (erro) { %>
           <div class="alert-error" style="margin:14px 0;padding:12px;border-radius:8px;background:#fff0f0;color:#9c3030;border:1px solid #e6b7b7;font-size:13px;">
@@ -27,45 +33,47 @@
           </div>
         <% } %>
 
-        <div class="table-card" style="padding:18px;margin-bottom:22px;">
-          <h3 style="margin:0 0 14px;">Nova câmera</h3>
+        <% if (usuario.perfil === 'administrador') { %>
+          <div class="table-card" style="padding:18px;margin-bottom:22px;">
+            <h3 style="margin:0 0 14px;">Nova câmera</h3>
 
-          <% if (caixas.length === 0) { %>
-            <p style="color:#9c3030;">Cadastre pelo menos uma caixa antes de adicionar câmeras.</p>
-          <% } else { %>
-            <form method="post" action="/cameras" class="novo-usuario-form">
-              <div class="form-group">
-                <label for="caixa_id">Caixa</label>
-                <select id="caixa_id" name="caixa_id" required>
-                  <% caixas.forEach((c) => { %>
-                    <option value="<%= c.id %>"><%= c.codigo %></option>
-                  <% }); %>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="porta">Porta</label>
-                <input id="porta" name="porta" type="number" min="1" required style="width:90px;">
-              </div>
-              <div class="form-group">
-                <label for="numero">Número</label>
-                <input id="numero" name="numero" type="text" placeholder="CAM-01">
-              </div>
-              <div class="form-group">
-                <label for="nome">Descrição</label>
-                <input id="nome" name="nome" type="text" placeholder="Entrada principal">
-              </div>
-              <div class="form-group">
-                <label for="ip">IP</label>
-                <input id="ip" name="ip" type="text" placeholder="192.168.0.50">
-              </div>
-              <div class="form-group">
-                <label for="localizacao">Localização</label>
-                <input id="localizacao" name="localizacao" type="text">
-              </div>
-              <button type="submit" class="btn primary">Adicionar câmera</button>
-            </form>
-          <% } %>
-        </div>
+            <% if (caixas.length === 0) { %>
+              <p style="color:#9c3030;">Cadastre pelo menos uma caixa antes de adicionar câmeras.</p>
+            <% } else { %>
+              <form method="post" action="/cameras" class="novo-usuario-form">
+                <div class="form-group">
+                  <label for="caixa_id">Caixa</label>
+                  <select id="caixa_id" name="caixa_id" required>
+                    <% caixas.forEach((c) => { %>
+                      <option value="<%= c.id %>"><%= c.codigo %></option>
+                    <% }); %>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="porta">Porta</label>
+                  <input id="porta" name="porta" type="number" min="1" required style="width:90px;">
+                </div>
+                <div class="form-group">
+                  <label for="numero">Número</label>
+                  <input id="numero" name="numero" type="text" placeholder="CAM-01">
+                </div>
+                <div class="form-group">
+                  <label for="nome">Descrição</label>
+                  <input id="nome" name="nome" type="text" placeholder="Entrada principal">
+                </div>
+                <div class="form-group">
+                  <label for="ip">IP</label>
+                  <input id="ip" name="ip" type="text" placeholder="192.168.0.50">
+                </div>
+                <div class="form-group">
+                  <label for="localizacao">Localização</label>
+                  <input id="localizacao" name="localizacao" type="text">
+                </div>
+                <button type="submit" class="btn primary">Adicionar câmera</button>
+              </form>
+            <% } %>
+          </div>
+        <% } %>
 
         <% if (cameras.length === 0) { %>
           <div class="empty-state">
@@ -82,7 +90,9 @@
                   <th>IP</th>
                   <th>Localização</th>
                   <th>Última atualização</th>
-                  <th>Ações</th>
+                  <% if (usuario.perfil === 'administrador') { %>
+                    <th>Ações</th>
+                  <% } %>
                 </tr>
               </thead>
               <tbody>
@@ -104,12 +114,14 @@
                         <span style="color:#8a99a5;">—</span>
                       <% } %>
                     </td>
-                    <td style="display:flex;gap:8px;">
-                      <button type="button" class="btn secondary btn-editar-camera" data-id="<%= cam.id %>">Editar</button>
-                      <form method="post" action="/cameras/<%= cam.id %>/excluir" onsubmit="return confirm('Excluir esta câmera?');">
-                        <button type="submit" class="btn secondary" style="color:#9c3030;border-color:#e6b7b7;">Excluir</button>
-                      </form>
-                    </td>
+                    <% if (usuario.perfil === 'administrador') { %>
+                      <td style="display:flex;gap:8px;">
+                        <button type="button" class="btn secondary btn-editar-camera" data-id="<%= cam.id %>">Editar</button>
+                        <form method="post" action="/cameras/<%= cam.id %>/excluir" onsubmit="return confirm('Excluir esta câmera?');">
+                          <button type="submit" class="btn secondary" style="color:#9c3030;border-color:#e6b7b7;">Excluir</button>
+                        </form>
+                      </td>
+                    <% } %>
                   </tr>
                 <% }); %>
               </tbody>

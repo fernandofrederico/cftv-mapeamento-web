@@ -20,18 +20,23 @@
 
       <div class="diagram-layout">
         <aside class="diagram-palette">
-          <h3>Equipamentos</h3>
-          <button class="palette-btn" data-node-type="switch">▤ Switch</button>
-          <button class="palette-btn" data-node-type="box">▣ Caixa técnica</button>
-          <button class="palette-btn" data-node-type="rack">▥ Rack/Data Center</button>
-          <button class="palette-btn" data-node-type="server">▦ Servidor</button>
-          <button class="palette-btn" data-node-type="router">⊕ Roteador</button>
-          <button class="palette-btn" data-node-type="cloud">☁ Nuvem/Internet</button>
-          <button class="palette-btn" data-node-type="text">T Texto</button>
-          <hr>
-          <button id="linkModeBtn" class="btn secondary" style="width:100%;justify-content:center;">Criar ligação</button>
-          <button id="deleteDiagramBtn" class="btn secondary" style="width:100%;justify-content:center;margin-top:8px;color:#9c3030;border-color:#e6b7b7;">Excluir selecionado</button>
-          <p class="hint">Clique em "Criar ligação" e depois em dois equipamentos, na ordem, pra ligar eles.</p>
+          <% if (usuario.perfil === 'administrador') { %>
+            <h3>Equipamentos</h3>
+            <button class="palette-btn" data-node-type="switch">▤ Switch</button>
+            <button class="palette-btn" data-node-type="box">▣ Caixa técnica</button>
+            <button class="palette-btn" data-node-type="rack">▥ Rack/Data Center</button>
+            <button class="palette-btn" data-node-type="server">▦ Servidor</button>
+            <button class="palette-btn" data-node-type="router">⊕ Roteador</button>
+            <button class="palette-btn" data-node-type="cloud">☁ Nuvem/Internet</button>
+            <button class="palette-btn" data-node-type="text">T Texto</button>
+            <hr>
+            <button id="linkModeBtn" class="btn secondary" style="width:100%;justify-content:center;">Criar ligação</button>
+            <button id="deleteDiagramBtn" class="btn secondary" style="width:100%;justify-content:center;margin-top:8px;color:#9c3030;border-color:#e6b7b7;">Excluir selecionado</button>
+            <p class="hint">Clique em "Criar ligação" e depois em dois equipamentos, na ordem, pra ligar eles.</p>
+          <% } else { %>
+            <h3>Diagrama</h3>
+            <p class="hint">Modo somente visualização. Clique num equipamento ou ligação para ver os detalhes.</p>
+          <% } %>
         </aside>
 
         <div class="diagram-work" id="diagramWork">
@@ -46,7 +51,9 @@
             <button id="zoomInBtn" class="zoom-btn" type="button">＋</button>
             <span id="diagramZoomLabel">100%</span>
             <button id="fitDiagramBtn" class="btn secondary" type="button">Ajustar</button>
-            <button id="saveDiagramBtn" class="btn primary" type="button">Salvar diagrama</button>
+            <% if (usuario.perfil === 'administrador') { %>
+              <button id="saveDiagramBtn" class="btn primary" type="button">Salvar diagrama</button>
+            <% } %>
           </div>
         </div>
 
@@ -56,32 +63,36 @@
 
           <div id="nodeInspector" class="hidden">
             <label>Descrição
-              <input id="nodeLabel" type="text">
+              <input id="nodeLabel" type="text" <%= usuario.perfil === 'administrador' ? '' : 'disabled' %>>
             </label>
             <label>Tamanho
-              <input id="nodeSize" type="number" min="36" max="220">
+              <input id="nodeSize" type="number" min="36" max="220" <%= usuario.perfil === 'administrador' ? '' : 'disabled' %>>
             </label>
             <label>Fonte (0 = automático)
-              <input id="nodeFontSize" type="number" min="0" max="40">
+              <input id="nodeFontSize" type="number" min="0" max="40" <%= usuario.perfil === 'administrador' ? '' : 'disabled' %>>
             </label>
-            <button id="applyNodeBtn" class="btn primary" style="width:100%;justify-content:center;">Aplicar</button>
+            <% if (usuario.perfil === 'administrador') { %>
+              <button id="applyNodeBtn" class="btn primary" style="width:100%;justify-content:center;">Aplicar</button>
+            <% } %>
           </div>
 
           <div id="linkInspector" class="hidden">
             <label>Espessura
-              <input id="linkWidth" type="number" min="1" max="12" step="0.5">
+              <input id="linkWidth" type="number" min="1" max="12" step="0.5" <%= usuario.perfil === 'administrador' ? '' : 'disabled' %>>
             </label>
             <label>Cor
-              <input id="linkColor" type="color">
+              <input id="linkColor" type="color" <%= usuario.perfil === 'administrador' ? '' : 'disabled' %>>
             </label>
             <label>Estilo
-              <select id="linkStyle">
+              <select id="linkStyle" <%= usuario.perfil === 'administrador' ? '' : 'disabled' %>>
                 <option value="solid">Contínua</option>
                 <option value="dash">Tracejada</option>
                 <option value="dot">Pontilhada</option>
               </select>
             </label>
-            <button id="applyLinkBtn" class="btn primary" style="width:100%;justify-content:center;">Aplicar</button>
+            <% if (usuario.perfil === 'administrador') { %>
+              <button id="applyLinkBtn" class="btn primary" style="width:100%;justify-content:center;">Aplicar</button>
+            <% } %>
           </div>
         </aside>
       </div>
@@ -91,6 +102,7 @@
   <script id="diagramaDadosIniciais" type="application/json">
     <%- JSON.stringify({ nodes: nodesIniciais, links: linksIniciais }) %>
   </script>
+  <script>document.body.dataset.perfil = "<%= usuario.perfil %>";</script>
   <script src="/js/diagrama.js?v=<%= assetVersion %>"></script>
 </body>
 </html>

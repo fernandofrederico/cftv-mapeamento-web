@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 
-const { requireAuth } = require('../middlewares/auth');
+const { requireAuth, requireAdmin } = require('../middlewares/auth');
 const { getDatabasePool } = require('../config/database');
 
 const router = express.Router();
@@ -103,7 +103,7 @@ router.get(
 
 router.post(
   '/caixas/:id/foto/:tipo',
-  requireAuth,
+  requireAdmin,
   (req, res, next) => {
     upload.single('foto')(req, res, (erroUpload) => {
       if (erroUpload) {

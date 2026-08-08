@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 
-const { requireAuth } = require('../middlewares/auth');
+const { requireAuth, requireAdmin } = require('../middlewares/auth');
 const { getDatabasePool } = require('../config/database');
 
 const router = express.Router();
@@ -90,7 +90,7 @@ router.get('/mapa/imagem-atual', requireAuth, async (req, res, next) => {
 
 router.post(
   '/mapa/imagem',
-  requireAuth,
+  requireAdmin,
   (req, res, next) => {
     upload.single('mapa')(req, res, (erroUpload) => {
       if (erroUpload) {
@@ -133,7 +133,7 @@ router.post(
 
 router.post(
   '/mapa/caixas/:id/posicao',
-  requireAuth,
+  requireAdmin,
   async (req, res, next) => {
     try {
       const id = Number(req.params.id);
