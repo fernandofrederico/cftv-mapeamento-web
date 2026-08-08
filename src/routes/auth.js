@@ -60,6 +60,7 @@ router.post('/login', requireGuest, async (req, res, next) => {
         nome: 'Administrador',
         email: emailAdministrador,
         perfil: 'administrador',
+        origemAmbiente: true,
       });
     }
 
@@ -89,6 +90,7 @@ router.post('/login', requireGuest, async (req, res, next) => {
             nome: usuario.nome,
             email: usuario.email,
             perfil: usuario.perfil,
+            origemAmbiente: false,
           });
         }
       }

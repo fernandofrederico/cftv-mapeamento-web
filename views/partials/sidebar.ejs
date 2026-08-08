@@ -36,10 +36,10 @@
 
   <div class="sidebar-spacer"></div>
 
-  <div class="current-user">
+  <a href="/minha-conta" class="current-user <%= active === 'minha-conta' ? 'active' : '' %>">
     <strong><%= usuario.nome %></strong>
     <small><%= usuario.email %></small>
-  </div>
+  </a>
 
   <form method="post" action="/logout">
     <button type="submit" class="sidebar-util">⏻ Sair</button>
