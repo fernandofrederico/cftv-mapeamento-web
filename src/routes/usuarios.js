@@ -34,6 +34,7 @@ router.post('/usuarios', requireAdmin, async (req, res, next) => {
       .trim()
       .toLowerCase();
     const senha = String(req.body.senha || '');
+    const confirmarSenha = String(req.body.confirmar_senha || '');
     const perfil = req.body.perfil === 'administrador'
       ? 'administrador'
       : 'usuario';
@@ -52,6 +53,21 @@ router.post('/usuarios', requireAdmin, async (req, res, next) => {
         usuario: req.session.usuario,
         usuarios,
         erro: 'Preencha nome, e-mail e uma senha com pelo menos 6 caracteres.',
+      });
+    }
+
+    if (senha !== confirmarSenha) {
+      const [usuarios] = await pool.query(`
+        SELECT id, nome, email, perfil, ativo, criado_em
+        FROM usuarios
+        ORDER BY nome
+      `);
+
+      return res.status(400).render('usuarios', {
+        titulo: 'Usuários',
+        usuario: req.session.usuario,
+        usuarios,
+        erro: 'A confirmação não bate com a senha.',
       });
     }
 

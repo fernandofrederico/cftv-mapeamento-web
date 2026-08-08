@@ -32,6 +32,7 @@ router.post('/minha-conta', requireAuth, async (req, res, next) => {
     const nome = String(req.body.nome || '').trim();
     const email = String(req.body.email || '').trim().toLowerCase();
     const senhaNova = String(req.body.senha_nova || '');
+    const confirmarSenhaNova = String(req.body.confirmar_senha_nova || '');
     const senhaAtual = String(req.body.senha_atual || '');
 
     if (!nome || !email) {
@@ -90,6 +91,15 @@ router.post('/minha-conta', requireAuth, async (req, res, next) => {
         titulo: 'Minha conta',
         usuario: usuarioSessao,
         erro: 'A nova senha precisa ter pelo menos 6 caracteres.',
+        sucesso: null,
+      });
+    }
+
+    if (senhaNova && senhaNova !== confirmarSenhaNova) {
+      return res.status(400).render('minha-conta', {
+        titulo: 'Minha conta',
+        usuario: usuarioSessao,
+        erro: 'A confirmação não bate com a nova senha.',
         sucesso: null,
       });
     }
